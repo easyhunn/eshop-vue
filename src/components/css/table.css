@@ -1,0 +1,26 @@
+/*adjust table*/
+table {
+  border-collapse: collapse;
+}
+
+th {
+  padding: 18px 8px 10px 17px;
+  white-space: pre;
+  text-align: left;
+}
+
+tr {
+  padding: 0 16px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+td {
+  max-width: 93px;
+  width: 90px;
+  overflow: hidden;
+  height: 48px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding-left: 16px;
+  text-align: left;
+}
