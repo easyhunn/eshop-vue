@@ -5,6 +5,9 @@ body {
     font-family: GoogleSans-Regular;
     overflow: hidden;
 }
+.d-text {
+    padding: 0 5px;
+}
 /* 
 =
 ::-webkit-scrollbar {

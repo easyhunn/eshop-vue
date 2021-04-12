@@ -50,7 +50,7 @@
 .icon-arrow-down {
     background-image: url("../../assets/Icon/arrow-down-line.png");
     width: 10px !important;;
-    height: 20px !important;
+    height: 4px !important;
 }
 .icon-support {
     background: #2b3173 url("../../assets/Icon/misasupport_1.png");
@@ -62,7 +62,7 @@
     background: url("../../assets/Icon/icon_help_18.png");
 }
 
-.icon-plus {
+.icon-plus-white {
     background: url("../../assets/Icon/common-icon.png");
     background-position: -1px -127px;
 }
@@ -85,25 +85,50 @@
 
 .icon-nextpage {
      background: url("../../assets/Icon/common-icon.png");
-    background-position: -749px -124px;
+    background-position: -749px -123px;
 }
 .icon-double-nextpage {
     background: url("../../assets/Icon/common-icon.png");
-    background-position: -798px -124px;
+    background-position: -798px -123px;
 }
 .icon-reload {
     background: url("../../assets/Icon/common-icon.png");
-    background-position: -849px -124px;
+    background-position: -849px -123px;
 }
 .icon-double-prepage {
     background: url("../../assets/Icon/common-icon.png");
-    background-position: -649px -124px;
+    background-position: -649px -123px;
 }
 .icon-prepage {
     background: url("../../assets/Icon/common-icon.png");
-    background-position: -700px -124px;
+    background-position: -700px -123px;
 }
 .icon-x {
     background: url("../../assets/Icon/common-icon.png");
     background-position: -1127px -127px;
+}
+.icon-save {
+    background: url("../../assets/Icon/common-icon.png");
+    background-position: -327px -127px !important;
+}
+.icon-plus {
+    background: url("../../assets/Icon/common-icon.png");
+    background-position: -26px -127px !important;
+}
+.icon-x {
+    background: url("../../assets/Icon/common-icon.png");
+    background-position: -252px -127px !important;
+}
+.m-icon-help {
+    background: url("../../assets/Icon/icon-popup.png");
+    background-position: -165px -2px !important;
+}
+.icon-delete-white {
+    background: url("../../assets/Icon/delete-white.png");
+    background-position: 6px 0px !important;
+    background-color: #df4646;
+}
+/* icon ! */
+.icon-exclamation {
+    background: url("../../assets/Icon/exclamation.png");
 }

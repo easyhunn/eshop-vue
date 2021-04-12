@@ -55,26 +55,47 @@
       </div>
     </div>
     <div class="h-table-body">
-      <div class="h-row">
-        <div class="h-cell" style="min-width:160px; max-width:160px;">
-          <div class="cell-content">misard</div>
-        </div>
-        <div class="h-cell" style="min-width:250px; max-width:2500px;">
-          <div class="cell-content">misard</div>
-        </div>
-        <div class="h-cell" style="min-width:500px; flex-basis:calc(100vw - 840px); flex-grow: 0; flex-shrink: 0">
-          <div class="cell-content"> 33 To Hieu, Ha Dong, Ha Noi</div>
-         
-        </div>
-        <div class="h-cell" style="min-width:130px; max-width:130px;">
-          <div class="cell-content">0868876760</div>
-        </div>
-        <div class="h-cell" style="min-width:150px; max-width:150px;">
-          <div class="cell-content">Đang hoạt động</div>
-        </div>
-      </div>
+      <table>
+        <tbody>
+          <tr class="h-row" aria-selected="true">
+            <td style="min-width:140px; max-width:140px;">misard</td>
+            <td style="min-width:230px; max-width:230px;">misard</td>
+            <td style="min-width:480px; flex-basis:calc(100vw - 883px); flex-grow: 0; flex-shrink: 0">33 To Hieu, Ha Dong, Ha Noi</td>
+            <td  style="min-width:110px; max-width:110px;">0868876760</td>
+            <td style="min-width:130px; max-width:130px;">Đang hoạt động</td>
+          </tr>
+          <tr class="h-row">
+            <td style="min-width:140px; max-width:140px;">ST00229</td>
+            <td style="min-width:230px; max-width:230px;">Cir2</td>
+            <td style="min-width:480px; flex-basis:calc(100vw - 883px); flex-grow: 0; flex-shrink: 0">50 Phan Đình Giót, Hà Nội</td>
+            <td  style="min-width:110px; max-width:110px;">039585837</td>
+            <td style="min-width:130px; max-width:130px;">Đang hoạt động</td>
+          </tr>
+          <tr class="h-row">
+            <td style="min-width:140px; max-width:140px;">ST00229</td>
+            <td style="min-width:230px; max-width:230px;">Cir2</td>
+            <td style="min-width:480px; flex-basis:calc(100vw - 883px); flex-grow: 0; flex-shrink: 0">50 Phan Đình Giót, Hà Nội</td>
+            <td  style="min-width:110px; max-width:110px;">039585837</td>
+            <td style="min-width:130px; max-width:130px;">Đang hoạt động</td>
+          </tr>
+          <tr class="h-row">
+            <td style="min-width:140px; max-width:140px;">ST00229</td>
+            <td style="min-width:230px; max-width:230px;">Cir2</td>
+            <td style="min-width:480px; flex-basis:calc(100vw - 883px); flex-grow: 0; flex-shrink: 0">50 Phan Đình Giót, Hà Nội</td>
+            <td  style="min-width:110px; max-width:110px;">039585837</td>
+            <td style="min-width:130px; max-width:130px;">Đang hoạt động</td>
+          </tr>
+          <tr class="h-row">
+            <td style="min-width:140px; max-width:140px;">ST00229</td>
+            <td style="min-width:230px; max-width:230px;">Cir2</td>
+            <td style="min-width:480px; flex-basis:calc(100vw - 883px); flex-grow: 0; flex-shrink: 0">50 Phan Đình Giót, Hà Nội</td>
+            <td  style="min-width:110px; max-width:110px;">039585837</td>
+            <td style="min-width:130px; max-width:130px;">Đang hoạt động</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <Dialog />
+    
   </div>
 </template>
 <style scoped>
@@ -104,6 +125,7 @@
   white-space: nowrap;
   color: #212121;
   font-weight: 700;
+  text-align: center;
 }
 .h-cell .filter {
   display: flex;
@@ -131,27 +153,29 @@
 }
 .h-table-body {
   background-color: white;
-  width: calc(100vw - 150px);
+  width: calc(100vw - 170px);
   /* width: 1194px; */
-  min-width: 992px;
-  height: calc(100% - 53px);
+  min-width: 1195px;
+  height: calc(100% - 64px);
   overflow-y: auto;
   overflow-x: hidden;
 }
 .h-table-body .h-row {
   display: flex;
-  background-color: #e5e6eb;
+  
+  /* background-color: #e5e6eb; */
 }
-.h-cell .cell-content{
-  padding: 10px 7px 6px;
+.h-table-body tr {
+  width: calc(100vw - 150px);
+  height: 32px;
 }
+
 </style>
 <script>
-import Dialog from "../base/Dialog.vue";
+
 export default {
   name: "Table",
-  components: {
-    Dialog
-  }
+  
+  
 }
 </script>

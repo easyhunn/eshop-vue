@@ -33,7 +33,7 @@
         <div class="nav-item-icon icon-category"></div>
         <div class="nav-item-text">Quản lý cửa hàng</div>
       </a>
-      <a class="nav-item">
+      <a class="nav-item last-nav-item">
         <div class="nav-item-icon icon-stock"></div>
         <div class="nav-item-text">Hàng hoá</div>
       </a>
@@ -105,5 +105,8 @@
   width: 22px;
   margin-left: 8px;
   margin-right: 10px;
+}
+.last-nav-item {
+  border-top: 1px solid #1E235A;
 }
 </style>
