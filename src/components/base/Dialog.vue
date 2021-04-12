@@ -72,7 +72,15 @@
                     </div>
                 </div>
             </div>
-            <div class="dialog-footer"></div>
+            <div class="dialog-footer">
+                <div class="dialog-footer-left">
+                    <div class="d-icon icon-help"></div>
+                    <div class="d-text">
+                        Trợ giúp
+                    </div>
+                </div>
+                <div class="right-dialog-footer"></div>
+            </div>
         </div>
     </div>
 </template>
@@ -155,6 +163,19 @@
                 max-width: 148px;
                 min-width: 148px;
             }
+    .dialog-footer {
+        display: flex;
+        align-items: center;
+    }
+        .dialog-footer .dialog-footer-left {
+            display: flex;
+            padding: 7px;
+            
+        }
+        .dialog-footer .d-text {
+            color: #2b3173;
+            font-size: 600;
+        }
             
     
 

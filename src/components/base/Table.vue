@@ -62,7 +62,7 @@
         <div class="h-cell" style="min-width:250px; max-width:2500px;">
           <div class="cell-content">misard</div>
         </div>
-        <div class="h-cell" style="min-width:500px; width:calc(100vw - 840px);">
+        <div class="h-cell" style="min-width:500px; flex-basis:calc(100vw - 840px); flex-grow: 0; flex-shrink: 0">
           <div class="cell-content"> 33 To Hieu, Ha Dong, Ha Noi</div>
          
         </div>
@@ -131,7 +131,8 @@
 }
 .h-table-body {
   background-color: white;
-  width: 1194px;
+  width: calc(100vw - 150px);
+  /* width: 1194px; */
   min-width: 992px;
   height: calc(100% - 53px);
   overflow-y: auto;
