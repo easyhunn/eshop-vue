@@ -29,7 +29,7 @@
                     <label >
                         Địa chỉ <span class="text-red">*</span>
                     </label>
-                    <textarea name="" id="" cols="30" rows="3" class="d-text-area"></textarea>
+                    <textarea name="" id="" cols="100" rows="3" class="d-text-area"></textarea>
                 </div>
                 <div class="dialog-row">
                     <div class="dialog-sub-row">
@@ -37,7 +37,7 @@
                         <input type="text" class="d-input">
                     </div>
                     <div class="dialog-sub-row">
-                        <label for="">Mã số thuế</label>
+                        <label for="" class="left-label">Mã số thuế</label>
                         <input type="text" class="d-input">
                     </div>
                 </div>
@@ -57,17 +57,17 @@
                         <input type="text" class="d-input">
                     </div>
                     <div class="dialog-sub-row">
-                        <label for="">Quận/Huyện</label>
+                        <label for="" class="left-label">Quận/Huyện</label>
                         <input type="text" class="d-input">
                     </div>
                 </div>
                 <div class="dialog-row">
                     <div class="dialog-sub-row">
-                        <label for="">Phường/Xã</label>
+                        <label for="" >Phường/Xã</label>
                         <input type="text" class="d-input">
                     </div>
                     <div class="dialog-sub-row">
-                        <label for="">Đường phố</label>
+                        <label for="" class="left-label">Đường phố</label>
                         <input type="text" class="d-input">
                     </div>
                 </div>
@@ -117,27 +117,44 @@
         display: flex;
         flex-direction: column;
         padding: 16px 16px 0;
+        border: 1px solid #e1e1e1;
     }
     .dialog-content .dialog-row{
         width: 100%;
         display: flex;
+        padding: 6px 0;
+        justify-content: space-between;
     }   
         .dialog-row label {
             white-space: nowrap;
             padding: 8px 5px 0 0;
+            min-width: 100px;
+            max-width: 100px;
+        }
+        .dialog-row .left-label {
+            padding-left: 16px
         }
         .dialog-row .d-input {
-            line-height: 18px;
+            line-height: 20px;
             width: 100%;
             padding: 5px 10px;
+            outline: none !important;
+            border-radius: 3px;
+            border: 1px solid #e1e1e1;
         }
         .dialog-row .d-text-area {
             padding: 5px 10px 4px;
+            border: 1px solid #e1e1e1;
+            border-radius: 3px;
         }
         .dialog-row .dialog-sub-row {
             display: flex;
             white-space: nowrap;
         }
+            .dialog-sub-row .d-input {
+                max-width: 148px;
+                min-width: 148px;
+            }
             
     
 
