@@ -57,41 +57,15 @@
     <div class="h-table-body">
       <table>
         <tbody>
-          <tr class="h-row" aria-selected="true">
-            <td style="min-width:140px; max-width:140px;">misard</td>
-            <td style="min-width:230px; max-width:230px;">misard</td>
-            <td style="min-width:480px; flex-basis:calc(100vw - 883px); flex-grow: 0; flex-shrink: 0">33 To Hieu, Ha Dong, Ha Noi</td>
-            <td  style="min-width:110px; max-width:110px;">0868876760</td>
-            <td style="min-width:130px; max-width:130px;">Đang hoạt động</td>
+
+          <tr class="h-row" v-for="store in stores" :key="store.StoreCode">
+            <td style="min-width:140px; max-width:140px;">{{store.StoreCode}}</td>
+            <td style="min-width:230px; max-width:230px;">{{store.StoreName}}</td>
+            <td style="min-width:480px; flex-basis:calc(100vw - 883px); flex-grow: 0; flex-shrink: 0">{{store.Address}}</td>
+            <td  style="min-width:110px; max-width:110px;">{{store.PhoneNumber}}</td>
+            <td style="min-width:130px; max-width:130px;">{{store.Status == "1" ? "Đang hoạt động" : "Ngừng hoạt động"}}</td>
           </tr>
-          <tr class="h-row">
-            <td style="min-width:140px; max-width:140px;">ST00229</td>
-            <td style="min-width:230px; max-width:230px;">Cir2</td>
-            <td style="min-width:480px; flex-basis:calc(100vw - 883px); flex-grow: 0; flex-shrink: 0">50 Phan Đình Giót, Hà Nội</td>
-            <td  style="min-width:110px; max-width:110px;">039585837</td>
-            <td style="min-width:130px; max-width:130px;">Đang hoạt động</td>
-          </tr>
-          <tr class="h-row">
-            <td style="min-width:140px; max-width:140px;">ST00229</td>
-            <td style="min-width:230px; max-width:230px;">Cir2</td>
-            <td style="min-width:480px; flex-basis:calc(100vw - 883px); flex-grow: 0; flex-shrink: 0">50 Phan Đình Giót, Hà Nội</td>
-            <td  style="min-width:110px; max-width:110px;">039585837</td>
-            <td style="min-width:130px; max-width:130px;">Đang hoạt động</td>
-          </tr>
-          <tr class="h-row">
-            <td style="min-width:140px; max-width:140px;">ST00229</td>
-            <td style="min-width:230px; max-width:230px;">Cir2</td>
-            <td style="min-width:480px; flex-basis:calc(100vw - 883px); flex-grow: 0; flex-shrink: 0">50 Phan Đình Giót, Hà Nội</td>
-            <td  style="min-width:110px; max-width:110px;">039585837</td>
-            <td style="min-width:130px; max-width:130px;">Đang hoạt động</td>
-          </tr>
-          <tr class="h-row">
-            <td style="min-width:140px; max-width:140px;">ST00229</td>
-            <td style="min-width:230px; max-width:230px;">Cir2</td>
-            <td style="min-width:480px; flex-basis:calc(100vw - 883px); flex-grow: 0; flex-shrink: 0">50 Phan Đình Giót, Hà Nội</td>
-            <td  style="min-width:110px; max-width:110px;">039585837</td>
-            <td style="min-width:130px; max-width:130px;">Đang hoạt động</td>
-          </tr>
+          
         </tbody>
       </table>
     </div>
@@ -153,7 +127,7 @@
 }
 .h-table-body {
   background-color: white;
-  width: calc(100vw - 170px);
+  width: calc(100vw - 168px);
   /* width: 1194px; */
   min-width: 1195px;
   height: calc(100% - 64px);
@@ -172,10 +146,56 @@
 
 </style>
 <script>
+import axios from "axios";
 
+import {store} from "../store/store.js";
+import {STORE_ADDRESS} from "../js/Const";
 export default {
+  
   name: "Table",
-  
-  
+  data: () => {
+    return {
+      stores: store.state.stores
+    }
+  },
+  methods: {
+    //Tải dữ liệu
+    //Created By: VM Hùng (13/04/2021)
+    async loadData() {
+      await axios
+        .get(STORE_ADDRESS)
+        .then((response) => {
+          return response.data;
+        })
+        .then((data) => {
+          // thêm cửa hàng vào store
+          data.forEach((element) => {
+            store.commit("addStore", element);
+          });
+          this.$emit("reloadSuccess", 1);
+        })
+        .catch((e) => {
+          console.log("error ::" + e);
+        });
+    },
+    // Xóa dữ liệu trong store
+    //Created By: VM Hùng (13/04/2021)
+
+    clearStore() {
+      store.commit("deleteSelf");
+    },
+    // tải lại dữ liêu
+    //Created By: VM Hùng (13/04/2021)
+
+    reLoadData() {
+      this.clearStore();
+      this.loadData();
+      this.stores = store.state.stores;
+    },
+
+  },
+  mounted: function() {
+    this.loadData();
+  }
 }
 </script>

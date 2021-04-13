@@ -17,13 +17,13 @@
                 <div class="d-icon icon-delete"></div>
                 <div class="item-content">Xoá</div>
             </a>
-            <a class="item">
-                <div class="d-icon icon-reload"></div>
+            <a class="item" @click="this.reload">
+                <div class="d-icon icon-reload-white"></div>
                 <div class="item-content">Nạp</div>
             </a>
         </div>
         <div class="table">
-           <Table />
+           <Table ref="Table" v-on:reloadSuccess="hidePreload"/>
         </div>
         <div class="footer">
             <div class="pagging">
@@ -275,7 +275,7 @@
 .preload .preload-background {
 
     background-color: black;
-    opacity: 0.4;
+    opacity: 0.2;
     width: calc(100vw - 170px);
     min-width: 1195px !important;
     height: calc(100vh - 161px);
@@ -330,22 +330,46 @@ export default {
         Dialog
     },
     methods: {
+        //hiện màn hình preload
+        //CreatedBy: VM Hùng(13/04/2021)
+        showPreload() {
+            this.preload = true;
+        },
+        // ẩn màn hình preload
+        //CreatedBy: VM Hùng(13/04/2021)
+        hidePreload() {
+            this.preload = false;
+        },
+        //Bật tắt dialog
+        //CreatedBy: VM Hùng(13/04/2021)
         toggleDialog() {
             this.showDialog = !this.showDialog;
         },
+        //Bật thông báo xóa
+        //CreatedBy: VM Hùng(13/04/2021)
         toggleAlertDelete() {
             this.showAlertDelete = !this.showAlertDelete;
         },
+        //Thêm mới 1 cửa hàng
+        //CreatedBy: VM Hùng(13/04/2021)
         addStore() {
             this.toggleDialog();
             this.$refs.Dialog.submitType = "Insert";
             this.$refs.Dialog.showForm();
         },
+        //Cập nhật thông tin cửa hàng
+        //CreatedBy: VM Hùng(13/04/2021)
         updateStore() {
             this.toggleDialog();
             this.$refs.Dialog.submitType = "update";
             this.$refs.Dialog.showForm();
         },
+        // tải lại dữ liệu bảng
+        //CreatedBy: VM Hùng(13/04/2021)
+        reload () {
+            this.showPreload();
+            this.$refs.Table.reLoadData();
+        }
     }
 }
 </script>

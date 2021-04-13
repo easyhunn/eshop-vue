@@ -271,6 +271,9 @@
 
 </style>
 <script>
+import axios from "axios";
+
+import {STORE_ADDRESS} from "../js/Const";
 export default {
   name: "Dialog",
   props: {
@@ -283,20 +286,29 @@ export default {
   },
   methods : {
     // chuyển border của tất cả input, select về mặc đinh
-    //xóa !
+    //xóa dấu !
+    //Created by: VM Hùng (13/04/2021)
     removeValidate() {
-      // xoá border
-      var form = document.getElementsByTagName("form")[0].elements;
-       var iconExclamation = document.getElementsByClassName("icon-exclamation");
-      for (var i = 0; i < form.length; ++i) {
-        form[i].style.border = "1px solid #d2d2d2";
-        iconExclamation[i].style.display = "none";
-      }
       
+      var form = document.getElementsByTagName("form")[0].elements;
+      var iconExclamation = document.getElementsByClassName("icon-exclamation");
+      // xoá border
+      for (let i = 0; i < form.length; ++i) {
+        form[i].style.border = "1px solid #d2d2d2";
+      }
+      //xóa dấu !
+      for (let i = 0; i < iconExclamation.length; ++i) {
+         iconExclamation[i].style.display = "none";
+      }
     },
+    //focus vào phần tử đầu tiên của form
+    //Created by: VM Hùng (13/04/2021)
     focusFirstElement() {
       this.$refs.storeCode.focus();
     },
+    //Kiểm tra thông tin form hợp lệ 
+    //Created by: VM Hùng (13/04/2021)
+
     checkValidate() {
       var valid = true;
       var requiredField = document.getElementsByClassName("required");
@@ -310,6 +322,9 @@ export default {
       }
       return valid;
     },
+    // focus lại phần từ đầu tiên
+    //Created by: VM Hùng (13/04/2021)
+
     reFocus(e) {
       if (e.keyCode == 9) {
         e.preventDefault();
@@ -317,17 +332,44 @@ export default {
         this.focusFirstElement();
       }
     },
+    // hiên dialog
+    //Created by: VM Hùng (13/04/2021)
+
     showForm() {
         this.removeValidate();
         this.$nextTick(() => this.focusFirstElement());
         
     },
+    //cập nhật thông tin cửa hàng
+    //Created by: VM Hùng (13/04/2021)
+
     updateFunc () {
         console.log("update")
     },
-    addFunc () {
-        console.log("add")
+    //Thêm mới 1 cửa hàng
+    //Created by: VM Hùng (13/04/2021)
+
+    addFunc(e) {
+      e.preventDefault();
+      // // Thêm thông tin khách hàng vào store
+      // store.commit("addCustomer", this.customer);
+      // // Thực thêm thông tin trên database
+
+      axios
+        .post(STORE_ADDRESS, this.customer)
+        .then(() => {
+          this.$root.$emit("success", "thêm thành công");
+          this.cancelFunc();
+        })
+        .catch((error) => {
+          this.errorMessage = error.message;
+          console.error("There was an error!", error);
+          console.log(this.customer);
+        });
+
+      
     },
+    
     submitFunc(e) {
       // kiểm tra dữ liệu hợp lệ
       e.preventDefault();
@@ -346,7 +388,7 @@ export default {
   },
   mounted() {
     var form = document.getElementsByTagName("form")[0];
-    
+    //Thêm sự kiện khi focus vào ô
     form.addEventListener(
       "focus",
       (event) => {
@@ -355,6 +397,7 @@ export default {
       },
       true
     );
+    
     form.addEventListener(
       "blur",
       (event) => {
