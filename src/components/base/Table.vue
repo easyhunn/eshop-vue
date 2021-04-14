@@ -56,9 +56,9 @@
     </div>
     <div class="h-table-body">
       <table>
-        <tbody>
+        <tbody ref="tbody">
 
-          <tr class="h-row" v-for="store in stores" :key="store.StoreCode">
+          <tr class="h-row" v-for="(store, i) in stores" :key="i" v-on:click="onRowSelect(store.StoreId, store.StoreName)" :name="store.StoreName" :id="store.StoreId">
             <td style="min-width:140px; max-width:140px;">{{store.StoreCode}}</td>
             <td style="min-width:230px; max-width:230px;">{{store.StoreName}}</td>
             <td style="min-width:480px; flex-basis:calc(100vw - 883px); flex-grow: 0; flex-shrink: 0">{{store.Address}}</td>
@@ -148,14 +148,17 @@
 <script>
 import axios from "axios";
 
-import {store} from "../store/store.js";
-import {STORE_ADDRESS} from "../js/Const";
+import {store} from "../store/Store.js";
+// import {location} from "../store/Location.js";
+import ADDRESS from "../js/Const.js" ;
 export default {
   
   name: "Table",
   data: () => {
     return {
-      stores: store.state.stores
+      stores: store.state.stores,
+      selectedRow: "",
+      storeNameSelected: ""
     }
   },
   methods: {
@@ -163,7 +166,7 @@ export default {
     //Created By: VM Hùng (13/04/2021)
     async loadData() {
       await axios
-        .get(STORE_ADDRESS)
+        .get(ADDRESS.STORE_ADDRESS)
         .then((response) => {
           return response.data;
         })
@@ -190,12 +193,48 @@ export default {
     reLoadData() {
       this.clearStore();
       this.loadData();
+      
       this.stores = store.state.stores;
     },
+    //Khi 1 hàng được chọn
+    //Created By: VM Hùng (13/04/2021)
+    onRowSelect (id, name) {
+      //Xóa hiệu ứng selected từ hàng cũ
+      if (this.selectedRow != null && this.selectedRow != "") {
+        var rowSelected = document.getElementById(this.selectedRow);
+        if (rowSelected.rowIndex % 2 == 0)
+          rowSelected.style.backgroundColor = "#fff";
+        else 
+          rowSelected.style.backgroundColor = "#e5e6eb";
+      }
+      this.rowSelected(id, name);
+      
+    },
+    //Sự kiện khi hàng được chọn
+    // Created By: VM Hùng (14/04/2021)
+    rowSelected (id, name) {
+      //selected hàng mới
+      this.selectedRow = id;
+      this.storeNameSelected = name; 
+      var rowSelect = document.getElementById(id);
+      rowSelect.style.backgroundColor = "#E2E4F1";
+      //Gửi id hàng được select về root
+      this.$root.$emit("rowSelect", id, name);
+    }
 
   },
   mounted: function() {
     this.loadData();
-  }
+    this.$root.$on("dialogSubmit", () => {this.reLoadData()})
+  },
+  updated: function () {
+    this.selectedRow = "";
+    let firstRow = this.$refs.tbody.children[0];
+
+    if (firstRow) {
+      firstRow.click();
+    }
+}
+
 }
 </script>

@@ -1,26 +1,26 @@
 <template>
     <div id="content">
         <div class="content-header">
-            <a class="item" @click="this.addStore">
+            <button class="item" @click="this.addStore">
                 <div class="d-icon icon-plus-white"></div>
                 <div class="item-content">Thêm mới</div>
-            </a>
-            <a class="item " >
+            </button>
+            <button class="item " >
                 <div class="d-icon icon-duplicate"></div>
                 <div class="item-content">Nhân bản</div>
-            </a >
-            <a class="item" @click="this.updateStore">
+            </button >
+            <button class="item" @click="this.updateStore">
                 <div class="d-icon icon-edit"></div>
                 <div class="item-content">Sửa</div>
-            </a>
-            <a class="item " @click="this.toggleAlertDelete">
+            </button>
+            <button class="item " @click="this.toggleAlertDelete">
                 <div class="d-icon icon-delete"></div>
                 <div class="item-content">Xoá</div>
-            </a>
-            <a class="item" @click="this.reload">
+            </button>
+            <button :disabled="disabledReload" class="item" @click="this.reload" >
                 <div class="d-icon icon-reload-white"></div>
                 <div class="item-content">Nạp</div>
-            </a>
+            </button>
         </div>
         <div class="table">
            <Table ref="Table" v-on:reloadSuccess="hidePreload"/>
@@ -42,7 +42,7 @@
                     </select>
                 </div>
                 <dir class="pagging-right">
-                    Hiều thị 1 - 2 Trên 2 kết quả
+                    Hiều thị 1 - {{totalStore}} Trên {{totalStore}} kết quả
                 </dir>
             </div>
         </div>
@@ -60,12 +60,12 @@
                 <div class="alert-content">
                     <div class="d-icon m-icon-help m-icon"></div>
                     <div class="alert-message">
-                        Bạn có chắc chắn muốn xóa <b>K2</b> khỏi danh sách cửa hàng.
+                        Bạn có chắc chắn muốn xóa <b>{{storeNameSelected}}</b> khỏi danh sách cửa hàng.
                     </div>
                 </div>
                 <div class="alert-footer">
                     <div class="alert-group-button">
-                        <button class="button-default btn-red">
+                        <button class="button-default btn-red" @click="deleteStore">
                             <div class="d-icon icon-delete-white"></div>
                             <div class="d-text">Xóa</div>
                         </button>
@@ -129,7 +129,11 @@
     padding-right: 7px;
     height: 100%;
     align-items: center;
+    outline: none !important;
+    border: none;
     border-left: 1px solid #190472;
+    background-color: transparent;
+    color: #fff;
 }
 .content-header .item:hover {
     background-color: #0088c1;
@@ -137,7 +141,7 @@
 .content-header .item .item-content {
     padding: 0 5px;
     cursor: pointer;
-     white-space: nowrap;
+    white-space: nowrap;
 }
 
 .table {
@@ -316,13 +320,21 @@
 <script>
 import Table from "../base/Table.vue";
 import Dialog from "../base/Dialog.vue";
+import ADDRESS from '../js/Const.js';
+import {location} from "../store/Location.js";
+import axios from "axios";
+
 export default {
     name: "Content",
     data: function() {
         return {
             showDialog: false,
             showAlertDelete: false,
-            preload : false
+            preload : false,
+            storeNameSelected: "",
+            storeIdSelected: null,
+            disabledReload: false,
+            totalStore: ""
         }
     },
     components: {
@@ -350,26 +362,125 @@ export default {
         toggleAlertDelete() {
             this.showAlertDelete = !this.showAlertDelete;
         },
+        // Xóa cửa hàng
+        //CreatedBy: VM Hùng(13/04/2021)
+        deleteStore() {
+            this.toggleAlertDelete();
+            this.showPreload();
+            axios
+                .delete(ADDRESS.STORE_ADDRESS + this.storeIdSelected)
+                .then((res) => res)
+                .then(() => {
+                    this.$refs.Table.reLoadData();
+                    this.hidePreload();
+                })
+                .catch((e) => {
+                console.log(e);
+                });
+            
+        },
         //Thêm mới 1 cửa hàng
         //CreatedBy: VM Hùng(13/04/2021)
         addStore() {
             this.toggleDialog();
             this.$refs.Dialog.submitType = "Insert";
             this.$refs.Dialog.showForm();
+            this.$refs.Dialog.setData({})
+            
         },
         //Cập nhật thông tin cửa hàng
         //CreatedBy: VM Hùng(13/04/2021)
         updateStore() {
             this.toggleDialog();
-            this.$refs.Dialog.submitType = "update";
+            this.$refs.Dialog.submitType = "Update";
             this.$refs.Dialog.showForm();
+            
         },
         // tải lại dữ liệu bảng
         //CreatedBy: VM Hùng(13/04/2021)
         reload () {
             this.showPreload();
+            this.disabledReload = true;
             this.$refs.Table.reLoadData();
+            this.disabledReload = false;
+        },
+        async loadLocationData () {
+            await axios
+                .get(ADDRESS.COUNTRY_ADDRESS)
+                .then((response) => {
+                    return response.data;
+                })
+                .then((data) => {
+                    // thêm cửa hàng vào store
+                    data.forEach((element) => {
+                        location.commit("addCountry", element);
+                    });
+                })
+                .catch((e) => {
+                    console.log("error ::" + e);
+                });
+            await axios
+                .get(ADDRESS.PROVINCE_ADDRESS)
+                .then((response) => {
+                    return response.data;
+                })
+                .then((data) => {
+                    // thêm cửa hàng vào store
+                    data.forEach((element) => {
+                        location.commit("addProvince", element);
+                    });
+                })
+                .catch((e) => {
+                    console.log("error ::" + e);
+                });
+            await axios
+                .get(ADDRESS.DISTRICT_ADDRESS)
+                .then((response) => {
+                    return response.data;
+                })
+                .then((data) => {
+                    // thêm cửa hàng vào store
+                    data.forEach((element) => {
+                        location.commit("addDistrict", element);
+                    });
+                })
+                .catch((e) => {
+                    console.log("error ::" + e);
+                });
+            await axios
+                .get(ADDRESS.WARD_ADDRESS)
+                .then((response) => {
+                    return response.data;
+                })
+                .then((data) => {
+                    // thêm cửa hàng vào store
+                    data.forEach((element) => {
+                        location.commit("addWard", element);
+                    });
+                })
+                .catch((e) => {
+                    console.log("error ::" + e);
+                });
+        },
+        getTotalStore() {
+            axios
+                .get(ADDRESS.STORE_ADDRESS + "StoresQuantity")
+                .then((response) => {
+
+                    this.totalStore = response.data;
+                })
         }
+    },
+    created: function () {
+        this.getTotalStore();
+        this.$root.$on("rowSelect", (id, name) => {
+
+            this.storeNameSelected = name;
+            this.storeIdSelected = id;
+            
+        })
+        this.loadLocationData();
+        
     }
 }
 </script>

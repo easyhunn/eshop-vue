@@ -1,7 +1,7 @@
 <template>
     <div class="dialog">
         <div class="dialog-background"></div>
-        <form class="dialog-container" @submit="submitFunc">
+        <form class="dialog-container" @submit="submitFunc" >
             <div class="dialog-header">
                 <div class="left-header">
                     <div class="header-title">
@@ -9,7 +9,7 @@
                     </div>
                 </div>
                 <div class="right-header">
-                    <button class="d-icon icon-x" @click="this.cancelFunc"></button>
+                    <button type="button" class="d-icon icon-x" @click="this.cancelFunc"></button>
                 </div>
             </div>
             <div class="dialog-content">
@@ -17,17 +17,17 @@
                     <label >
                         Mã cửa hàng <span class="text-red">*</span>
                     </label>
-                    <input ref="storeCode" type="text" class="d-input required">
-                    <div class="d-icon icon-exclamation"></div>
+                    <input v-model="store.StoreCode" ref="storeCode" type="text" class="d-input required">
+                    <div  ref="StoreCodeError" class="d-icon icon-exclamation"></div>
                     <span class="input-required">
-                        Trường không được phép để trống
+                        {{storeCodeError}}
                     </span>
                 </div>
                 <div class="dialog-row">
                     <label >
                         Tên cửa hàng <span class="text-red">*</span>
                     </label>
-                    <input type="text" class="d-input required">
+                    <input v-model="store.StoreName" type="text" class="d-input required">
                     <div class="d-icon icon-exclamation"></div>
                     <span class="input-required">
                         Trường không được phép để trống
@@ -37,7 +37,7 @@
                     <label >
                         Địa chỉ <span class="text-red">*</span>
                     </label>
-                    <textarea name="" id="" cols="100" rows="3" class="d-text-area required"></textarea>
+                    <textarea id="address" v-model="store.Address" name="" cols="100" rows="3" class="d-text-area required"></textarea>
                     <div class="d-icon icon-exclamation"></div>
                     <span class="input-required" style="top: 70%;">
                         Trường không được phép để trống
@@ -46,19 +46,19 @@
                 <div class="dialog-row">
                     <div class="dialog-sub-row">
                         <label for="">Số điện thoại</label>
-                        <input type="number" class="d-input">
+                        <input v-model="store.PhoneNumber" type="number" class="d-input">
                     </div>
                     <div class="dialog-sub-row">
                         <label for="" class="left-label">Mã số thuế</label>
-                        <input type="text" class="d-input">
+                        <input v-model="store.StoreTaxCode" type="text" class="d-input">
                     </div>
                 </div>
                 
                 <div class="dialog-row">
                     <div class="dialog-sub-row">
                         <label for="">Quốc gia</label>
-                        <select name="" id="" class="d-select">
-                            <option value="" >Việt Nam</option>
+                        <select v-model="store.CountryId" name="" id="Country" class="d-select">
+                            <option v-for="(country, id) in countries" v-bind:key="id" :value="country.CountryId" >{{country.CountryName}}</option>
                         </select>
                     </div>
                     <div class="dialog-sub-row">
@@ -68,27 +68,28 @@
                 <div class="dialog-row">
                     <div class="dialog-sub-row">
                         <label for="">Tỉnh/Thành phố</label>
-                        <select class="d-select">
-                            <option value="" >Nhập để tìm kiếm</option>
+                        <select v-model="store.ProvinceId" id="Province" class="d-select">
+                            <option v-for="(province, id) in provinces" v-bind:key="id" :value="province.ProvinceId" >{{province.ProvinceName}}</option>
                         </select>
                     </div>
                     <div class="dialog-sub-row">
                         <label for="" class="left-label">Quận/Huyện</label>
-                        <select class="d-select">
-                            <option value="" >Nhập để tìm kiếm</option>
+        
+                        <select v-model="store.DistrictId" id="District" class="d-select">
+                            <option v-for="(district, id) in districts" v-bind:key="id" :value="district.DistrictId" >{{district.DistrictName}}</option>
                         </select>
                     </div>
                 </div>
                 <div class="dialog-row">
                     <div class="dialog-sub-row">
                         <label for="" >Phường/Xã</label>
-                        <select class="d-select">
-                            <option value="" >Nhập để tìm kiếm</option>
+                        <select v-model="store.WardId" id="Ward" class="d-select">
+                            <option v-for="(ward, id) in wards" v-bind:key="id" :value="ward.WardId">{{ward.WardName}}</option>
                         </select>
                     </div>
                     <div class="dialog-sub-row">
                         <label for="" class="left-label">Đường phố</label>
-                        <input type="text" class="d-input">
+                        <input v-model="store.Street" type="text" class="d-input">
                     </div>
                 </div>
             </div>
@@ -273,7 +274,11 @@
 <script>
 import axios from "axios";
 
-import {STORE_ADDRESS} from "../js/Const";
+import ADDRESS from "../js/Const.js";
+import {STORE} from "../js/Entity";
+import {location} from "../store/Location.js";
+import CommonFunction from "../js/Common.js";
+
 export default {
   name: "Dialog",
   props: {
@@ -281,7 +286,35 @@ export default {
   },
   data: function() {
       return {
-          submitTypeP: ""
+          submitType: "",
+          store: {
+              StoreCode: "",
+              StoreName: "",
+              Address: "",
+              PhoneNumber: "",
+              StoreTaxCode: "",
+              CountryId: null,
+              ProvinceId: null,
+              DistrictId: null,
+              WardId: null,
+              Street: "",
+              Status: 1
+          },
+          countries: {
+
+          },
+          provinces: {
+
+          },
+          districts: {
+
+          },
+          wards: {
+
+          },
+          rowSelected: null,
+          storeNameSelected: "",
+          storeCodeError: "Trường không được phép để trống"
       }
   },
   methods : {
@@ -314,7 +347,7 @@ export default {
       var requiredField = document.getElementsByClassName("required");
       var iconExclamation = document.getElementsByClassName("icon-exclamation");
       for (var i = 0; i < requiredField.length; ++i) {
-        if (requiredField[i].value == "") {
+        if (requiredField[i].value.trim() == "") {
           valid = false;
           requiredField[i].style.border = "1px solid red";
           iconExclamation[i].style.display = "block";
@@ -328,7 +361,6 @@ export default {
     reFocus(e) {
       if (e.keyCode == 9) {
         e.preventDefault();
-        console.log("re")
         this.focusFirstElement();
       }
     },
@@ -336,6 +368,12 @@ export default {
     //Created by: VM Hùng (13/04/2021)
 
     showForm() {
+        this.storeCodeError = "Trường không được phép để trống";
+        if (this.submitType == "Update") {
+            this.loadStoreData();
+        } else{
+            this.setData(STORE);
+        }        
         this.removeValidate();
         this.$nextTick(() => this.focusFirstElement());
         
@@ -344,43 +382,76 @@ export default {
     //Created by: VM Hùng (13/04/2021)
 
     updateFunc () {
-        console.log("update")
+
+        // Sửa thông tin khách hàng vào store
+
+        axios
+            .put(ADDRESS.STORE_ADDRESS + this.rowSelected, this.store)
+            .then(() => {
+                this.$root.$emit("success", "Sửa thành công");
+                this.cancelFunc();
+            }).then (() => {
+                //thông báo thêm thành công về table
+                this.$root.$emit("dialogSubmit", 1);
+            }) 
+            .catch((error) => {
+                this.storeCodeError = error.response.data.userMsg;
+                this.$refs.StoreCodeError.style.display = "block";
+            });
     },
     //Thêm mới 1 cửa hàng
     //Created by: VM Hùng (13/04/2021)
 
-    addFunc(e) {
-      e.preventDefault();
-      // // Thêm thông tin khách hàng vào store
-      // store.commit("addCustomer", this.customer);
-      // // Thực thêm thông tin trên database
-
-      axios
-        .post(STORE_ADDRESS, this.customer)
-        .then(() => {
-          this.$root.$emit("success", "thêm thành công");
-          this.cancelFunc();
-        })
-        .catch((error) => {
-          this.errorMessage = error.message;
-          console.error("There was an error!", error);
-          console.log(this.customer);
-        });
+    addFunc() {
+        //   validate dữ liệu
+        if (this.store.PhoneNumber)
+            this.store.PhoneNumber = CommonFunction.phoneNumberToString(this.store.PhoneNumber);
+        // Thực thêm thông tin trên database
+        
+        axios
+            .post(ADDRESS.STORE_ADDRESS, this.store)
+            .then(() => {
+                this.$root.$emit("success", "thêm thành công");
+                this.cancelFunc();
+            }).then (() => {
+                //thông báo thêm thành công về table
+                this.$root.$emit("dialogSubmit", 1);
+            })
+            .catch((error) => {
+                this.storeCodeError = error.response.data.userMsg;
+                this.$refs.StoreCodeError.style.display = "block";
+            });
 
       
     },
-    
+    //Tải dữ liệu vào form khi update
+    async loadStoreData() {
+      await axios
+        .get(ADDRESS.STORE_ADDRESS + this.rowSelected)
+        .then((response) => {
+            return response.data;
+        })
+        .then((data) => {
+            if(this.PhoneNumber)
+                data.PhoneNumber = CommonFunction.phoneNumberToNumber(data.PhoneNumber);
+            this.setData(data);
+        });
+    },
+    setData (data) {
+        Object.assign(this.store, data);
+    },
     submitFunc(e) {
       // kiểm tra dữ liệu hợp lệ
       e.preventDefault();
       var valid = this.checkValidate();
       if (valid) {
         // Xác định kiểu sử dụng modal
-        if (this.submitType == "update") {
+        if (this.submitType == "Update") {
           this.updateFunc();
         } else {
-          this.addFunc(e);
+          this.addFunc();
         }
+        
       }
     },
 
@@ -394,6 +465,8 @@ export default {
       (event) => {
         event.target.style.border = "1px solid #2b3173";
         event.target.style.outline = "none";
+        // var iconExclamation = document.getElementsByClassName("icon-exclamation");
+        //event.target.nextElementSibling.style.display = "none";
       },
       true
     );
@@ -401,12 +474,44 @@ export default {
     form.addEventListener(
       "blur",
       (event) => {
-        if (!event.target.value && event.target.tagName != "BUTTON" && event.target.classList.contains("required"))
+        if (!event.target.value.trim() && event.target.tagName != "BUTTON" && event.target.classList.contains("required"))
           event.target.style.border = "1px solid red";
         else event.target.style.border = "1px solid #e1e1e1";
       },
       true
     );
+    //Tải dữ liệu đất nước
+    this.countries = location.state.country;
   },
+  created: function() {
+    // Hàng đầu tiên được chọn ngay lúc mở trang
+    this.$root.$on("rowSelect", (rowId, name) => {
+        this.rowSelected = rowId
+        this.storeNameSelected = name;
+    });
+  },
+  computed: {
+      getCountry () {
+          return this.store.CountryId;
+      },
+      getProvince () {
+          return this.store.ProvinceId;
+      },
+      getDistrict () {
+          return this.store.DistrictId;
+      }
+  },
+  watch: {
+      getCountry () {
+          this.provinces = location.getters.provinceWithCountry(this.store.CountryId);
+      },
+      getProvince () {
+          this.districts = location.getters.districtWithProvince(this.store.ProvinceId);
+      },
+      getDistrict () {
+          this.wards = location.getters.wardWithDistrict(this.store.DistrictId);
+      }
+  }
+
 }
 </script>
