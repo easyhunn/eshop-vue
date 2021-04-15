@@ -23,7 +23,7 @@
             </button>
         </div>
         <div class="table">
-           <Table ref="Table" v-on:reloadSuccess="hidePreload" 
+           <Table ref="table" v-on:reloadSuccess="hidePreload" 
                                 v-on:startReLoad="showPreload" 
                                 v-on:rowNumberChange="(data) => this.availableStore = data"
                                 :startPosition="startPosition"
@@ -33,14 +33,14 @@
         <div class="footer">
             <div class="pagging">
                 <div class="pagging-left">
-                    <button class="d-icon icon-double-prepage disable"></button>
-                    <button class="d-icon icon-prepage disable"></button>
+                    <button ref="firstPage" class="d-icon icon-double-prepage disable"></button>
+                    <button ref="prevPage" :disabled="disablePrevPage" v-on:click="prevPage" class="d-icon icon-prepage "></button>
                     <div style="padding: 0 4px">Trang</div>
-                    <input type="text" value="1">
-                    <div style="padding: 0 10px 0 4px">Trên {{totalStore % storePerPage == 0 ? parseInt(totalStore / storePerPage) : parseInt(totalStore / storePerPage) + 1}}</div>
-                    <button v-on:click="nextPage" class="d-icon icon-nextpage"></button>
-                    <button class="d-icon icon-double-nextpage disable"></button>
-                    <button class="d-icon icon-reload"></button>
+                    <input type="text" v-model="currentPage">
+                    <div style="padding: 0 10px 0 4px">Trên {{totalPage}}</div>
+                    <button :disabled="disableNextPage" ref="nextPage" v-on:click="nextPage" class="d-icon icon-nextpage"></button>
+                    <button ref="firstPage" class="d-icon icon-double-nextpage disable"></button>
+                    <button class="d-icon icon-reload" v-on:click="reload()"></button>
                     <select v-model="storePerPage" name="" id="" >
                         <option value="15">15</option>
                         <option value="25">25</option>
@@ -53,7 +53,7 @@
                 </dir>
             </div>
         </div>
-        <Dialog ref="Dialog" v-show="showDialog" :cancelFunc="toggleDialog" />
+        <Dialog ref="dialog" v-show="showDialog" :cancelFunc="toggleDialog" />
         <!-- region alert delete -->
         <div class="alert-delete" v-if="this.showAlertDelete">
             <div class="alert-background"></div>
@@ -345,6 +345,10 @@ export default {
             storePerPage: 15,
             startPosition: 1,
             availableStore: 15,
+            currentPage: 1,
+            totalPage: "",
+            disablePrevPage: true,
+            disableNextPage: false
         }
     },
     components: {
@@ -353,7 +357,12 @@ export default {
     },
     methods: {
         nextPage() {
+            this.currentPage++;
             this.startPosition = parseInt(this.startPosition) + parseInt(this.storePerPage);
+        },
+        prevPage() {
+            this.currentPage--;
+            this.startPosition = parseInt(this.startPosition) - parseInt(this.storePerPage);
         },
         //hiện màn hình preload
         //CreatedBy: VM Hùng(13/04/2021)
@@ -391,7 +400,7 @@ export default {
                 .delete(ADDRESS.STORE_ADDRESS + this.storeIdSelected)
                 .then((res) => res)
                 .then(() => {
-                    this.$refs.Table.reLoadData();
+                    this.$refs.table.reLoadData();
                     this.hidePreload();
                 })
                 .catch((e) => {
@@ -403,17 +412,17 @@ export default {
         //CreatedBy: VM Hùng(13/04/2021)
         addStore() {
             this.toggleDialog();
-            this.$refs.Dialog.submitType = "Insert";
-            this.$refs.Dialog.showForm();
-            this.$refs.Dialog.setData({})
+            this.$refs.dialog.submitType = "Insert";
+            this.$refs.dialog.showForm();
+            this.$refs.dialog.setData({})
             
         },
         //Cập nhật thông tin cửa hàng
         //CreatedBy: VM Hùng(13/04/2021)
         updateStore() {
             this.toggleDialog();
-            this.$refs.Dialog.submitType = "Update";
-            this.$refs.Dialog.showForm();
+            this.$refs.dialog.submitType = "Update";
+            this.$refs.dialog.showForm();
             
         },
         // tải lại dữ liệu bảng
@@ -421,7 +430,7 @@ export default {
         reload () {
             this.showPreload();
             this.disabledReload = true;
-            this.$refs.Table.reLoadData();
+            this.$refs.table.reLoadData();
             this.disabledReload = false;
         },
         async loadLocationData () {
@@ -493,6 +502,7 @@ export default {
     },
     created: function () {
         this.getTotalStore();
+        
         this.$root.$on("rowSelect", (id, name) => {
 
             this.storeNameSelected = name;
@@ -511,6 +521,12 @@ export default {
         //CreatedBy: VM Hùng(14/04/2021)
         storePerPageChange() {
             return this.storePerPage;
+        },
+        //Thay đổi trang hiện tại
+        //CreatedBy: VM Hùng(14/04/2021)
+
+        currentPageChange() {
+            return this.currentPage;
         }
     },
     watch: {
@@ -518,9 +534,37 @@ export default {
             this.$root.$emit("pageChange", this.startPosition, this.storePerPage)
         },
         storePerPageChange() {
+            this.currentPage = 1;
+            this.startPosition = 1;
             this.$root.$emit("pageChange", this.startPosition, this.storePerPage)
         },
-       
+        currentPageChange() {
+            //kiểm tra trang đầu tiên
+            if (this.currentPage == 1) {
+                this.$refs.prevPage.classList.add("disable");
+                this.disablePrevPage = true;
+            } else {
+                this.$refs.prevPage.classList.remove("disable")
+                this.disablePrevPage = false;
+            }
+            // kiểm tra trang cuối cùng
+            if (this.currentPage >= this.totalPage) {
+                this.$refs.nextPage.classList.add("disable");
+                this.disableNextPage = true;
+            } else {
+                this.$refs.nextPage.classList.remove("disable")
+                this.disableNextPage = false;
+            }
+        }
+
+    },
+    mounted: function() {
+        this.$refs.prevPage.classList.add("disable");
+    },
+    updated: function () {
+        this.totalPage = this.totalStore % this.storePerPage == 0 
+                            ? parseInt(this.totalStore / this.storePerPage) 
+                            : parseInt(this.totalStore / this.storePerPage) + 1
     }
 }
 </script>

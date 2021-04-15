@@ -1,13 +1,13 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
+import Vue from "vue";
+import Vuex from "vuex";
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 const getDefaultState = () => {
   return {
     stores: [],
-  }
-}
+  };
+};
 
 export const store = new Vuex.Store({
   state: {
@@ -15,22 +15,19 @@ export const store = new Vuex.Store({
   },
   mutations: {
     //Thêm mới 1 cửa hàng
-    addStore (state, store) {
-    state.stores.push(store);
+    addStore(state, store) {
+      state.stores.push(store);
     },
-    delete (state, index) {
+    delete(state, index) {
       state.customers.splice(index, index + 1);
     },
-    deleteSelf (state) {
-      Object.assign(state, getDefaultState())
+    deleteSelf(state) {
+      Object.assign(state, getDefaultState());
     },
-    
-    
   },
   getters: {
-      count: store => store.stores.length,
-      // lấy toàn bộ customer
-      stores: store => store.stores,
+    count: (store) => store.stores.length,
+    // lấy toàn bộ customer
+    stores: (store) => store.stores,
   },
-
-})
+});
