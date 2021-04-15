@@ -1,4 +1,4 @@
-export const STORE = {
+const STORE = {
     StoreCode: "",
     StoreName: "",
     Address: "",
@@ -11,3 +11,12 @@ export const STORE = {
     Street: "",
     Status: 1
 }
+const filterCategories = {
+    StoreCode: "",
+    StoreName: "",
+    Address: "",
+    PhoneNumber: "",
+    status: ""
+}
+
+export default {STORE, filterCategories}

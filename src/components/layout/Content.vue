@@ -23,26 +23,33 @@
             </button>
         </div>
         <div class="table">
-           <Table ref="Table" v-on:reloadSuccess="hidePreload"/>
+           <Table ref="Table" v-on:reloadSuccess="hidePreload" 
+                                v-on:startReLoad="showPreload" 
+                                v-on:rowNumberChange="(data) => this.availableStore = data"
+                                :startPosition="startPosition"
+                                :offset="storePerPage"
+            />
         </div>
         <div class="footer">
             <div class="pagging">
                 <div class="pagging-left">
-                    <a class="d-icon icon-double-prepage disable"></a>
-                    <a class="d-icon icon-prepage disable"></a>
+                    <button class="d-icon icon-double-prepage disable"></button>
+                    <button class="d-icon icon-prepage disable"></button>
                     <div style="padding: 0 4px">Trang</div>
                     <input type="text" value="1">
-                    <div style="padding: 0 10px 0 4px">Trên 1</div>
-                    <a class="d-icon icon-nextpage disable"></a>
-                    <a class="d-icon icon-double-nextpage disable"></a>
-                    <a class="d-icon icon-reload"></a>
-                    <select name="" id="">
-                        <option value="">50</option>
-                        <option value="">100</option>
+                    <div style="padding: 0 10px 0 4px">Trên {{totalStore % storePerPage == 0 ? parseInt(totalStore / storePerPage) : parseInt(totalStore / storePerPage) + 1}}</div>
+                    <button v-on:click="nextPage" class="d-icon icon-nextpage"></button>
+                    <button class="d-icon icon-double-nextpage disable"></button>
+                    <button class="d-icon icon-reload"></button>
+                    <select v-model="storePerPage" name="" id="" >
+                        <option value="15">15</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
                     </select>
                 </div>
                 <dir class="pagging-right">
-                    Hiều thị 1 - {{totalStore}} Trên {{totalStore}} kết quả
+                    Hiều thị {{startPosition}} - {{startPosition + availableStore}} Trên {{totalStore}} kết quả
                 </dir>
             </div>
         </div>
@@ -181,7 +188,7 @@
                 border-radius: 3px;
                 height: 100%;
                 margin: 0 1px 0 1px;
-            
+                outline: none !important;
             }
             .pagging-left input {
                 min-height: 12px;
@@ -334,7 +341,10 @@ export default {
             storeNameSelected: "",
             storeIdSelected: null,
             disabledReload: false,
-            totalStore: ""
+            totalStore: "",
+            storePerPage: 15,
+            startPosition: 1,
+            availableStore: 15,
         }
     },
     components: {
@@ -342,6 +352,9 @@ export default {
         Dialog
     },
     methods: {
+        nextPage() {
+            this.startPosition = parseInt(this.startPosition) + parseInt(this.storePerPage);
+        },
         //hiện màn hình preload
         //CreatedBy: VM Hùng(13/04/2021)
         showPreload() {
@@ -351,6 +364,12 @@ export default {
         //CreatedBy: VM Hùng(13/04/2021)
         hidePreload() {
             this.preload = false;
+        },
+        //Bật tắt màn hình preload
+        //CreatedBy: VM Hùng(14/04/2021)
+        togglePreload(data) {
+            if (data == 1) this.showPreload();
+            else this.hidePreload();
         },
         //Bật tắt dialog
         //CreatedBy: VM Hùng(13/04/2021)
@@ -362,6 +381,7 @@ export default {
         toggleAlertDelete() {
             this.showAlertDelete = !this.showAlertDelete;
         },
+        
         // Xóa cửa hàng
         //CreatedBy: VM Hùng(13/04/2021)
         deleteStore() {
@@ -480,7 +500,27 @@ export default {
             
         })
         this.loadLocationData();
-        
+    },
+    computed: {
+        //Vị trị bắt đầu trong danh sách thay đổi
+        //CreatedBy: VM Hùng(14/04/2021)
+        startPositionChange() {
+            return this.startPosition;
+        },
+        //Số lượng store trên 1 trang thay đổi
+        //CreatedBy: VM Hùng(14/04/2021)
+        storePerPageChange() {
+            return this.storePerPage;
+        }
+    },
+    watch: {
+        startPositionChange() {
+            this.$root.$emit("pageChange", this.startPosition, this.storePerPage)
+        },
+        storePerPageChange() {
+            this.$root.$emit("pageChange", this.startPosition, this.storePerPage)
+        },
+       
     }
 }
 </script>

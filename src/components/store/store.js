@@ -25,6 +25,7 @@ export const store = new Vuex.Store({
       Object.assign(state, getDefaultState())
     },
     
+    
   },
   getters: {
       count: store => store.stores.length,

@@ -9,7 +9,7 @@
           <div class="filter-type">
             *
           </div>
-          <input type="text" class="filter-content" />
+          <input v-model="filterCategories.storeCode" type="text" class="filter-content" />
         </div>
       </div>
       <div class="h-cell" style="min-width:250px; max-width:250px;">
@@ -20,7 +20,7 @@
           <div class="filter-type">
             *
           </div>
-          <input type="text" class="filter-content" />
+          <input v-model="filterCategories.storeName" type="text" class="filter-content" />
         </div>
       </div>
       <div class="h-cell" style="min-width:500px; width:calc(100vw - 840px);">
@@ -29,7 +29,7 @@
         </div>
         <div class="filter">
           <div class="filter-type">*</div>
-          <input type="text" class="filter-content" />
+          <input v-model="filterCategories.address" type="text" class="filter-content" />
         </div>
       </div>
       <div class="h-cell" style="min-width:130px; max-width:130px;">
@@ -38,7 +38,7 @@
         </div>
         <div class="filter">
           <div class="filter-type">*</div>
-          <input type="text" class="filter-content" />
+          <input v-model="filterCategories.phoneNumber" type="text" class="filter-content" />
         </div>
       </div>
       <div class="h-cell" style="min-width:150px; max-width:150px;">
@@ -46,10 +46,10 @@
           Trạng thái
         </div>
         <div class="filter">
-          <select name="" id="" class="filter-content">
-            <option value="">Tất cả</option>
-            <option value="">Đang hoạt đông</option>
-            <option value="">Ngừng hoạt động</option>
+          <select v-model="filterCategories.status" name="" id="" class="filter-content">
+            <option value="3">Tất cả</option>
+            <option value="1">Đang hoạt đông</option>
+            <option value="0">Ngừng hoạt động</option>
           </select>
         </div>
       </div>
@@ -151,6 +151,8 @@ import axios from "axios";
 import {store} from "../store/Store.js";
 // import {location} from "../store/Location.js";
 import ADDRESS from "../js/Const.js" ;
+import Entity from "../js/Entity.js";
+
 export default {
   
   name: "Table",
@@ -158,9 +160,18 @@ export default {
     return {
       stores: store.state.stores,
       selectedRow: "",
-      storeNameSelected: ""
+      storeNameSelected: "",
+      filterCategories: {
+        storeCode: "",
+        storeName: "",
+        address: "",
+        phoneNumber: "",
+        status: "3"
+      },
+
     }
   },
+  props: ['startPosition', 'offset'],
   methods: {
     //Tải dữ liệu
     //Created By: VM Hùng (13/04/2021)
@@ -181,6 +192,54 @@ export default {
           console.log("error ::" + e);
         });
     },
+    async filterData() {
+      if (this.status == "") this.status = 3; 
+       await axios
+        .get(ADDRESS.STORE_ADDRESS + "Filter?storeCode=" + this.filterCategories.storeCode
+                                          +"&storeName=" + this.filterCategories.storeName
+                                          +"&address="   + this.filterCategories.address
+                                          +"&phoneNumber="+ this.filterCategories.phoneNumber 
+                                          +"&status=" + this.filterCategories.status
+        )
+        .then((response) => {
+          return response.data;
+        })
+        .then((data) => {
+          if (data.length > 0) {
+            // thêm cửa hàng vào store
+            data.forEach((element) => {
+              store.commit("addStore", element);
+            });
+          }
+          
+          this.$emit("reloadSuccess", 1);
+        }).then (() => {
+          this.$emit("rowNumberChange", store.getters.count);
+        })
+        .catch((e) => {
+          console.log("error ::" + e);
+        });
+    },
+    async loadDataByIndexOffset (start, offset) {
+      await axios
+        .get(ADDRESS.STORE_ADDRESS + "page?positionStart=" + start + "&offSet=" + offset)
+        .then((response) => {
+          return response.data;
+        })
+        .then((data) => {
+          // thêm cửa hàng vào store
+          data.forEach((element) => {
+            store.commit("addStore", element);
+          });
+          this.$emit("reloadSuccess", 1);
+        })
+        .then (() => {
+          this.$emit("rowNumberChange", store.getters.count);
+        })
+        .catch((e) => {
+          console.log("error ::" + e);
+        });
+    },
     // Xóa dữ liệu trong store
     //Created By: VM Hùng (13/04/2021)
 
@@ -191,10 +250,11 @@ export default {
     //Created By: VM Hùng (13/04/2021)
 
     reLoadData() {
+      this.$emit("startReLoad", 1)
       this.clearStore();
-      this.loadData();
-      
+      this.loadDataByIndexOffset(this.startPosition, this.offSet);
       this.stores = store.state.stores;
+
     },
     //Khi 1 hàng được chọn
     //Created By: VM Hùng (13/04/2021)
@@ -223,9 +283,40 @@ export default {
     }
 
   },
+  computed: {
+    //Xác định danh mục filter có thay đổi không
+    // Created By: VM Hùng (15/04/2021)
+    getStoreFilter() {
+      return Object.entries(this.filterCategories).toString();
+    },
+    // Số lượng cửa hàng trên trang thay đổi
+    // Created By: VM Hùng (15/04/2021)
+
+  },
+  watch: {
+    //Thay đổi dữ liệu của bảng khi store thay đổi
+    // Created By: VM Hùng (15/04/2021)
+    getStoreFilter() {
+      if (Object.entries(this.filterCategories).toString() === Object.entries(Entity.filterCategories).toString()) {
+        this.reLoadData();
+      } else {
+        this.clearStore();
+        this.filterData();
+        this.stores = store.state.stores;
+      }
+    },
+  },
   mounted: function() {
-    this.loadData();
+    //Tải dữ liệu vào bảng ngay khi bảng đã tạo
+    this.loadDataByIndexOffset(this.startPosition, this.offset);
+    // nhận được sự kiện update hoặc insert từ dialog
     this.$root.$on("dialogSubmit", () => {this.reLoadData()})
+    this.$root.$on("pageChange", (startPosition, offset) => {
+        this.offSet = offset;
+        this.startPosition = startPosition;
+        this.reLoadData();
+    })
+    
   },
   updated: function () {
     this.selectedRow = "";

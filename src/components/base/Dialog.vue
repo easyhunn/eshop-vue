@@ -275,7 +275,7 @@
 import axios from "axios";
 
 import ADDRESS from "../js/Const.js";
-import {STORE} from "../js/Entity";
+import Entity from "../js/Entity";
 import {location} from "../store/Location.js";
 import CommonFunction from "../js/Common.js";
 
@@ -372,7 +372,7 @@ export default {
         if (this.submitType == "Update") {
             this.loadStoreData();
         } else{
-            this.setData(STORE);
+            this.setData(Entity.STORE);
         }        
         this.removeValidate();
         this.$nextTick(() => this.focusFirstElement());
@@ -504,9 +504,12 @@ export default {
   watch: {
       getCountry () {
           this.provinces = location.getters.provinceWithCountry(this.store.CountryId);
+          this.districts = [];
+          this.wards = [];
       },
       getProvince () {
           this.districts = location.getters.districtWithProvince(this.store.ProvinceId);
+          this.wards = [];
       },
       getDistrict () {
           this.wards = location.getters.wardWithDistrict(this.store.DistrictId);
