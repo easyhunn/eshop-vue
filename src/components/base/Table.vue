@@ -1,5 +1,6 @@
 <template>
   <div class="h-table">
+    
     <div class="h-table-header">
       <div class="h-cell" style="min-width:160px; max-width:160px;">
         <div class="title">
@@ -9,7 +10,7 @@
           <div class="filter-type">
             *
           </div>
-          <input v-model="filterCategories.storeCode" type="text" class="filter-content" />
+          <input v-model="filterCategories.storeCode" type="text" class="filter-content" v-on:keyup="loadDataFilter"/>
         </div>
       </div>
       <div class="h-cell" style="min-width:250px; max-width:250px;">
@@ -20,7 +21,7 @@
           <div class="filter-type">
             *
           </div>
-          <input v-model="filterCategories.storeName" type="text" class="filter-content" />
+          <input v-model="filterCategories.storeName" type="text" class="filter-content" v-on:keyup="loadDataFilter"/>
         </div>
       </div>
       <div class="h-cell" style="min-width:500px; width:calc(100vw - 840px);">
@@ -29,7 +30,7 @@
         </div>
         <div class="filter">
           <div class="filter-type">*</div>
-          <input v-model="filterCategories.address" type="text" class="filter-content" />
+          <input v-model="filterCategories.address" type="text" class="filter-content" v-on:keyup="loadDataFilter"/>
         </div>
       </div>
       <div class="h-cell" style="min-width:130px; max-width:130px;">
@@ -38,7 +39,7 @@
         </div>
         <div class="filter">
           <div class="filter-type">*</div>
-          <input v-model="filterCategories.phoneNumber" type="text" class="filter-content" />
+          <input v-model="filterCategories.phoneNumber" type="text" class="filter-content" v-on:keyup="loadDataFilter"/>
         </div>
       </div>
       <div class="h-cell" style="min-width:150px; max-width:150px;">
@@ -46,7 +47,7 @@
           Trạng thái
         </div>
         <div class="filter">
-          <select v-model="filterCategories.status" name="" id="" class="filter-content">
+          <select v-model="filterCategories.status" name="" id="" class="filter-content" v-on:change="loadDataFilter">
             <option value="3">Tất cả</option>
             <option value="1">Đang hoạt đông</option>
             <option value="0">Ngừng hoạt động</option>
@@ -55,6 +56,7 @@
       </div>
     </div>
     <div class="h-table-body">
+      <div ref="noContent" class="no-content">Không có dữ liệu</div>
       <table>
         <tbody ref="tbody">
 
@@ -73,11 +75,20 @@
   </div>
 </template>
 <style scoped>
+
 .h-table {
   width: 100%;
   height: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+}
+.no-content {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 30px;
+  color: #dddd;
 }
 .h-table-header {
   width: 100%;
@@ -166,13 +177,36 @@ export default {
         storeName: "",
         address: "",
         phoneNumber: "",
-        status: "3"
+        status: "3",
+        startPosition: 1
       },
 
     }
   },
-  props: ['startPosition', 'offset'],
+  props: ['start', 'offset'],
   methods: {
+    //tải lại dữ liệu sau khi filter
+    //Created By: VM Hùng (16/04/2021)
+    loadDataFilter () {
+      //Sau 200 ms thì mới tìm kiếm
+      if (this.timer) {
+        clearTimeout(this.timer);
+        this.timer = null;
+      }
+      this.timer = setTimeout(() => {
+        //kiểm tra nếu không nhập dữ liệu
+        if (Object.entries(this.filterCategories).toString() === Object.entries(Entity.filterCategories).toString()) {
+          this.reLoadData();
+        } else {
+          this.$refs.noContent.style.display = "none";
+          this.$emit("startReload", 1);
+          this.clearStore();
+          this.filterData();
+          this.stores = store.state.stores;
+        }
+      }, 200);
+      
+    },
     //Tải dữ liệu
     //Created By: VM Hùng (13/04/2021)
     async loadData() {
@@ -182,11 +216,17 @@ export default {
           return response.data;
         })
         .then((data) => {
-          // thêm cửa hàng vào store
-          data.forEach((element) => {
-            store.commit("addStore", element);
-          });
-          this.$emit("reloadSuccess", 1);
+          if(data.length > 0) {
+            // thêm cửa hàng vào store
+            data.forEach((element) => {
+              store.commit("addStore", element);
+            });
+            this.$refs.noContent.style.display = "none";
+
+            this.$emit("reloadSuccess", 1);
+          } else {
+            this.$refs.noContent.style.display = "block";
+          }
         })
         .catch((e) => {
           console.log("error ::" + e);
@@ -210,11 +250,13 @@ export default {
             data.forEach((element) => {
               store.commit("addStore", element);
             });
+            this.$refs.noContent.style.display = "none";
+          } else {
+            this.$refs.noContent.style.display = "block";
           }
-          
-          this.$emit("reloadSuccess", 1);
         }).then (() => {
           this.$emit("rowNumberChange", store.getters.count);
+          this.$emit("reloadSuccess", 1);
         })
         .catch((e) => {
           console.log("error ::" + e);
@@ -227,6 +269,7 @@ export default {
           return response.data;
         })
         .then((data) => {
+          if (data.length > 0)
           // thêm cửa hàng vào store
           data.forEach((element) => {
             store.commit("addStore", element);
@@ -250,7 +293,9 @@ export default {
     //Created By: VM Hùng (13/04/2021)
 
     reLoadData() {
-      this.$emit("startReLoad", 1)
+      // xóa màn hình không có dữ liệu
+      this.$refs.noContent.style.display = "none";
+      this.$emit("startReload", 1)
       this.clearStore();
       this.loadDataByIndexOffset(this.startPosition, this.offSet);
       this.stores = store.state.stores;
@@ -283,30 +328,8 @@ export default {
     }
 
   },
-  computed: {
-    //Xác định danh mục filter có thay đổi không
-    // Created By: VM Hùng (15/04/2021)
-    getStoreFilter() {
-      return Object.entries(this.filterCategories).toString();
-    },
-    // Số lượng cửa hàng trên trang thay đổi
-    // Created By: VM Hùng (15/04/2021)
-
-  },
-  watch: {
-    //Thay đổi dữ liệu của bảng khi store thay đổi
-    // Created By: VM Hùng (15/04/2021)
-    getStoreFilter() {
-      if (Object.entries(this.filterCategories).toString() === Object.entries(Entity.filterCategories).toString()) {
-        this.reLoadData();
-      } else {
-        this.clearStore();
-        this.filterData();
-        this.stores = store.state.stores;
-      }
-    },
-  },
   mounted: function() {
+    this.startPosition = this.start;
     //Tải dữ liệu vào bảng ngay khi bảng đã tạo
     this.loadDataByIndexOffset(this.startPosition, this.offset);
     // nhận được sự kiện update hoặc insert từ dialog
@@ -325,7 +348,17 @@ export default {
     if (firstRow) {
       firstRow.click();
     }
-}
+  },
+  computed: {
+    startChange () {
+      return this.start;
+    }
+  },
+  watch: {
+    startChange() {
+      this.startPosition = this.start;
+    }
+  }
 
 }
 </script>

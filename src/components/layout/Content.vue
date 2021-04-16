@@ -24,22 +24,37 @@
         </div>
         <div class="table">
            <Table ref="table" v-on:reloadSuccess="hidePreload" 
-                                v-on:startReLoad="showPreload" 
+                                v-on:startReload="showPreload" 
                                 v-on:rowNumberChange="(data) => this.availableStore = data"
-                                :startPosition="startPosition"
+                                :start="startPosition"
                                 :offset="storePerPage"
             />
         </div>
         <div class="footer">
             <div class="pagging">
                 <div class="pagging-left">
-                    <button ref="firstPage" class="d-icon icon-double-prepage disable"></button>
-                    <button ref="prevPage" :disabled="disablePrevPage" v-on:click="prevPage" class="d-icon icon-prepage "></button>
+                    <button v-on:click="firstPage" 
+                            :disabled="disablePrevPage" 
+                            ref="firstPage" 
+                            class="d-icon icon-double-prepage">
+                    </button>
+                    <button ref="prevPage" 
+                        :disabled="disablePrevPage" 
+                        v-on:click="prevPage" 
+                        class="d-icon icon-prepage ">
+                    </button>
                     <div style="padding: 0 4px">Trang</div>
-                    <input type="text" v-model="currentPage">
+                    <input type="text" v-model="currentPage" @keydown.13="changePage()">
                     <div style="padding: 0 10px 0 4px">Trên {{totalPage}}</div>
-                    <button :disabled="disableNextPage" ref="nextPage" v-on:click="nextPage" class="d-icon icon-nextpage"></button>
-                    <button ref="firstPage" class="d-icon icon-double-nextpage disable"></button>
+                    <button :disabled="disableNextPage" 
+                            ref="nextPage" 
+                            v-on:click="nextPage" 
+                            class="d-icon icon-nextpage">
+                    </button>
+                    <button v-on:click="lastPage" 
+                            :disabled="disableNextPage"
+                            ref="lastPage" 
+                            class="d-icon icon-double-nextpage"></button>
                     <button class="d-icon icon-reload" v-on:click="reload()"></button>
                     <select v-model="storePerPage" name="" id="" >
                         <option value="15">15</option>
@@ -356,13 +371,67 @@ export default {
         Dialog
     },
     methods: {
+        // khi chuyển trang
+        //CreatedBy: VM Hùng(16/04/2021)
+        changePage() {
+             //Kiểm tra trang hợp lệ
+            if (this.currentPage < 1) this.currentPage = 1;
+            if (this.currentPage > this.totalPage) this.currentPage = this.totalPage
+            //kiểm tra trang đầu tiên
+            if (this.currentPage <= 1) {
+                //không cho phép lùi lại page
+                this.$refs.prevPage.classList.add("disable");
+                this.disablePrevPage = true;
+                //không cho phép về trang đầu tiên
+                this.$refs.firstPage.classList.add("disable");
+            } else {
+                this.$refs.prevPage.classList.remove("disable")
+                this.$refs.firstPage.classList.remove("disable")
+                this.disablePrevPage = false;
+            }
+            // kiểm tra trang cuối cùng
+            if (this.currentPage >= this.totalPage) {
+                this.$refs.nextPage.classList.add("disable");
+                this.disableNextPage = true;
+                this.$refs.lastPage.classList.add("disable");
+
+            } else {
+                this.$refs.nextPage.classList.remove("disable");
+                this.$refs.lastPage.classList.remove("disable")
+                this.disableNextPage = false;
+            }
+
+            //Thay đổi vị trí bắt đầu
+            this.startPosition = this.currentPage*(this.storePerPage - 1) + 1;
+            this.$root.$emit("pageChange", this.startPosition, this.storePerPage)
+        },
+        //chuyển sang trang tiếp theo
+        //CreatedBy: VM Hùng(13/04/2021)
         nextPage() {
             this.currentPage++;
             this.startPosition = parseInt(this.startPosition) + parseInt(this.storePerPage);
+            this.changePage();
         },
+        //Chuyển sang trang trước đó
+        //CreatedBy: VM Hùng(13/04/2021)
         prevPage() {
             this.currentPage--;
             this.startPosition = parseInt(this.startPosition) - parseInt(this.storePerPage);
+            this.changePage();
+        },
+        //Chuyển về trang đầu tiên
+        //CreatedBy: VM Hùng(13/04/2021)
+        firstPage() {
+            this.currentPage = 1;
+            this.startPosition = 1;
+            this.changePage();
+        },
+        // chuyển về trang cuối cùng
+        //CreatedBy: VM Hùng(13/04/2021)
+        lastPage() {
+            this.currentPage = this.totalPage;
+            this.startPosition = (this.currentPage - 1)*this.storePerPage + 1;
+            this.changePage();
         },
         //hiện màn hình preload
         //CreatedBy: VM Hùng(13/04/2021)
@@ -525,41 +594,66 @@ export default {
         //Thay đổi trang hiện tại
         //CreatedBy: VM Hùng(14/04/2021)
 
-        currentPageChange() {
-            return this.currentPage;
-        }
+        // currentPageChange() {
+        //     return this.currentPage;
+        // }
     },
     watch: {
+        //Chỉ số bắt đầu của trang thay đổi
+        //CreatedBy: VM Hùng(14/04/2021)
         startPositionChange() {
-            this.$root.$emit("pageChange", this.startPosition, this.storePerPage)
+            // kiểm tra vị trí page hợp lệ chưa
+            if (this.startPosition < 1) this.startPosition = 1;
+            if (this.startPosition > this.totalStore - this.storePerPage + 1) {
+                this.startPosition = this.totalStore - this.storePerPage + 1;
+            }
+            //gửi thông báo về table
+            // this.$root.$emit("pageChange", this.startPosition, this.storePerPage)
         },
+        //Số lượng bản ghi trên page thay đổi
+        //CreatedBy: VM Hùng(14/04/2021)
         storePerPageChange() {
             this.currentPage = 1;
             this.startPosition = 1;
             this.$root.$emit("pageChange", this.startPosition, this.storePerPage)
         },
-        currentPageChange() {
-            //kiểm tra trang đầu tiên
-            if (this.currentPage == 1) {
-                this.$refs.prevPage.classList.add("disable");
-                this.disablePrevPage = true;
-            } else {
-                this.$refs.prevPage.classList.remove("disable")
-                this.disablePrevPage = false;
-            }
-            // kiểm tra trang cuối cùng
-            if (this.currentPage >= this.totalPage) {
-                this.$refs.nextPage.classList.add("disable");
-                this.disableNextPage = true;
-            } else {
-                this.$refs.nextPage.classList.remove("disable")
-                this.disableNextPage = false;
-            }
-        }
+        // currentPageChange() {
+        //     //Kiểm tra trang hợp lệ
+        //     if (this.currentPage < 1) this.currentPage = 1;
+        //     if (this.currentPage > this.totalPage) this.currentPage = this.totalPage
+        //     //kiểm tra trang đầu tiên
+        //     if (this.currentPage <= 1) {
+        //         //không cho phép lùi lại page
+        //         this.$refs.prevPage.classList.add("disable");
+        //         this.disablePrevPage = true;
+        //         //không cho phép về trang đầu tiên
+        //         this.$refs.firstPage.classList.add("disable");
+        //     } else {
+        //         this.$refs.prevPage.classList.remove("disable")
+        //         this.$refs.firstPage.classList.remove("disable")
+        //         this.disablePrevPage = false;
+        //     }
+        //     // kiểm tra trang cuối cùng
+        //     if (this.currentPage >= this.totalPage) {
+        //         this.$refs.nextPage.classList.add("disable");
+        //         this.disableNextPage = true;
+        //         this.$refs.lastPage.classList.add("disable");
+
+        //     } else {
+        //         this.$refs.nextPage.classList.remove("disable");
+        //         this.$refs.lastPage.classList.remove("disable")
+        //         this.disableNextPage = false;
+        //     }
+
+        //     //Thay đổi vị trí bắt đầu
+        //     this.startPosition = this.currentPage*(this.storePerPage - 1) + 1;
+        //     this.$root.$emit("pageChange", this.startPosition, this.storePerPage)
+        // }
 
     },
     mounted: function() {
         this.$refs.prevPage.classList.add("disable");
+        this.$refs.firstPage.classList.add("disable");
     },
     updated: function () {
         this.totalPage = this.totalStore % this.storePerPage == 0 

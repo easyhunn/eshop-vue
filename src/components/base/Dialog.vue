@@ -403,6 +403,7 @@ export default {
     //Created by: VM Hùng (13/04/2021)
 
     addFunc() {
+
         //   validate dữ liệu
         if (this.store.PhoneNumber)
             this.store.PhoneNumber = CommonFunction.phoneNumberToString(this.store.PhoneNumber);
