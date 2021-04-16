@@ -178,7 +178,7 @@ export default {
         address: "",
         phoneNumber: "",
         status: "3",
-        startPosition: 1
+        startPosition: 0
       },
 
     }
@@ -263,6 +263,8 @@ export default {
         });
     },
     async loadDataByIndexOffset (start, offset) {
+      if (!start) start = 0;
+      if (!offset) offset = 15;
       await axios
         .get(ADDRESS.STORE_ADDRESS + "page?positionStart=" + start + "&offSet=" + offset)
         .then((response) => {

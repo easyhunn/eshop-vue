@@ -358,7 +358,7 @@ export default {
             disabledReload: false,
             totalStore: "",
             storePerPage: 15,
-            startPosition: 1,
+            startPosition: 0,
             availableStore: 15,
             currentPage: 1,
             totalPage: "",
@@ -401,8 +401,8 @@ export default {
                 this.disableNextPage = false;
             }
 
-            //Thay đổi vị trí bắt đầu
-            this.startPosition = this.currentPage*(this.storePerPage - 1) + 1;
+            // //Thay đổi vị trí bắt đầu
+            // this.startPosition = (this.currentPage - 1)*this.storePerPage;
             this.$root.$emit("pageChange", this.startPosition, this.storePerPage)
         },
         //chuyển sang trang tiếp theo
@@ -423,14 +423,14 @@ export default {
         //CreatedBy: VM Hùng(13/04/2021)
         firstPage() {
             this.currentPage = 1;
-            this.startPosition = 1;
+            this.startPosition = 0;
             this.changePage();
         },
         // chuyển về trang cuối cùng
         //CreatedBy: VM Hùng(13/04/2021)
         lastPage() {
             this.currentPage = this.totalPage;
-            this.startPosition = (this.currentPage - 1)*this.storePerPage + 1;
+            this.startPosition = (this.currentPage - 1)*this.storePerPage ;
             this.changePage();
         },
         //hiện màn hình preload
@@ -603,9 +603,9 @@ export default {
         //CreatedBy: VM Hùng(14/04/2021)
         startPositionChange() {
             // kiểm tra vị trí page hợp lệ chưa
-            if (this.startPosition < 1) this.startPosition = 1;
-            if (this.startPosition > this.totalStore - this.storePerPage + 1) {
-                this.startPosition = this.totalStore - this.storePerPage + 1;
+            if (this.startPosition < 0) this.startPosition = 0;
+            if (this.startPosition > this.totalStore) {
+                this.startPosition = this.totalStore;
             }
             //gửi thông báo về table
             // this.$root.$emit("pageChange", this.startPosition, this.storePerPage)
@@ -614,7 +614,7 @@ export default {
         //CreatedBy: VM Hùng(14/04/2021)
         storePerPageChange() {
             this.currentPage = 1;
-            this.startPosition = 1;
+            this.startPosition = 0;
             this.$root.$emit("pageChange", this.startPosition, this.storePerPage)
         },
         // currentPageChange() {

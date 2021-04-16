@@ -343,17 +343,19 @@ export default {
     //Created by: VM Hùng (13/04/2021)
 
     checkValidate() {
-      var valid = true;
-      var requiredField = document.getElementsByClassName("required");
-      var iconExclamation = document.getElementsByClassName("icon-exclamation");
-      for (var i = 0; i < requiredField.length; ++i) {
-        if (requiredField[i].value.trim() == "") {
-          valid = false;
-          requiredField[i].style.border = "1px solid red";
-          iconExclamation[i].style.display = "block";
+        var valid = true;
+        var requiredField = document.getElementsByClassName("required");
+        var iconExclamation = document.getElementsByClassName("icon-exclamation");
+        //Kiểm tra dữ liệu rỗng
+        for (var i = 0; i < requiredField.length; ++i) {
+            if (requiredField[i].value.trim() == "") {
+            valid = false;
+            requiredField[i].style.border = "1px solid red";
+            iconExclamation[i].style.display = "block";
+            } 
         }
-      }
-      return valid;
+        
+        return valid;
     },
     // focus lại phần từ đầu tiên
     //Created by: VM Hùng (13/04/2021)
@@ -426,6 +428,7 @@ export default {
       
     },
     //Tải dữ liệu vào form khi update
+    //Created By: VM Hùng (16/04/2021)
     async loadStoreData() {
       await axios
         .get(ADDRESS.STORE_ADDRESS + this.rowSelected)
@@ -433,8 +436,9 @@ export default {
             return response.data;
         })
         .then((data) => {
-            if(this.PhoneNumber)
+            if(data.PhoneNumber)
                 data.PhoneNumber = CommonFunction.phoneNumberToNumber(data.PhoneNumber);
+            
             this.setData(data);
         });
     },
