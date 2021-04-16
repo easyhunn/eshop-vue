@@ -25,7 +25,8 @@
         <div class="table">
            <Table ref="table" v-on:reloadSuccess="hidePreload" 
                                 v-on:startReload="showPreload" 
-                                v-on:rowNumberChange="(data) => this.availableStore = data"
+                                v-on:numberRowChange="totalStoreChange"
+                                v-on:availableRowChange="availableRowChange"
                                 :start="startPosition"
                                 :offset="storePerPage"
             />
@@ -64,7 +65,7 @@
                     </select>
                 </div>
                 <dir class="pagging-right">
-                    Hiều thị {{startPosition}} - {{startPosition + availableStore}} Trên {{totalStore}} kết quả
+                    Hiều thị {{startPosition + 1}} - {{startPosition + availableStore}} Trên {{totalStore}} kết quả
                 </dir>
             </div>
         </div>
@@ -371,6 +372,17 @@ export default {
         Dialog
     },
     methods: {
+        availableRowChange(data) {
+            this.availableStore = data;
+        },
+        //Tổng số store thay đổi
+        //CreatedBy: VM Hùng(16/04/2021)
+        totalStoreChange(data) {
+            this.availableStore = data;
+            this.totalStore = data;
+            this.startPosition = 0;
+
+        },
         // khi chuyển trang
         //CreatedBy: VM Hùng(16/04/2021)
         changePage() {

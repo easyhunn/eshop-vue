@@ -203,6 +203,7 @@ export default {
           this.clearStore();
           this.filterData();
           this.stores = store.state.stores;
+          
         }
       }, 200);
       
@@ -255,7 +256,7 @@ export default {
             this.$refs.noContent.style.display = "block";
           }
         }).then (() => {
-          this.$emit("rowNumberChange", store.getters.count);
+          this.$emit("numberRowChange", store.getters.count);
           this.$emit("reloadSuccess", 1);
         })
         .catch((e) => {
@@ -279,7 +280,7 @@ export default {
           this.$emit("reloadSuccess", 1);
         })
         .then (() => {
-          this.$emit("rowNumberChange", store.getters.count);
+          this.$emit("availableRowChange", store.getters.count);
         })
         .catch((e) => {
           console.log("error ::" + e);
