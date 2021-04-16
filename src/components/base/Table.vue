@@ -351,13 +351,8 @@ export default {
       firstRow.click();
     }
   },
-  computed: {
-    startChange () {
-      return this.start;
-    }
-  },
   watch: {
-    startChange() {
+    start() {
       this.startPosition = this.start;
     }
   }

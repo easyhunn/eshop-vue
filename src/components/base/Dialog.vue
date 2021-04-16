@@ -46,7 +46,7 @@
                 <div class="dialog-row">
                     <div class="dialog-sub-row">
                         <label for="">Số điện thoại</label>
-                        <input v-model="store.PhoneNumber" type="number" class="d-input">
+                        <input v-model="store.PhoneNumber" type="text" class="d-input">
                     </div>
                     <div class="dialog-sub-row">
                         <label for="" class="left-label">Mã số thuế</label>
@@ -262,7 +262,7 @@
             }
         .dialog-footer .d-text {
             color: #2b3173;
-            font-size: 600;
+            font-weight: 600;
             padding: 0 5px;
         }
         .dialog-footer .dialog-footer-right {
@@ -277,7 +277,7 @@ import axios from "axios";
 import ADDRESS from "../js/Const.js";
 import Entity from "../js/Entity";
 import {location} from "../store/Location.js";
-import CommonFunction from "../js/Common.js";
+// import CommonFunction from "../js/Common.js";
 
 export default {
   name: "Dialog",
@@ -314,7 +314,8 @@ export default {
           },
           rowSelected: null,
           storeNameSelected: "",
-          storeCodeError: "Trường không được phép để trống"
+          storeCodeError: "Trường không được phép để trống",
+          blankStore: {}
       }
   },
   methods : {
@@ -343,18 +344,24 @@ export default {
     //Created by: VM Hùng (13/04/2021)
 
     checkValidate() {
+        this.blankStore = {}
+        if (!this.noBlankData()) return false;
+        return true;
+    },
+    // Kiểm tra tất cả trường yêu cầu đều có dữ liệu
+    //Created By: VM Hùng (16/04/2021)
+    noBlankData () {
         var valid = true;
         var requiredField = document.getElementsByClassName("required");
         var iconExclamation = document.getElementsByClassName("icon-exclamation");
         //Kiểm tra dữ liệu rỗng
         for (var i = 0; i < requiredField.length; ++i) {
             if (requiredField[i].value.trim() == "") {
-            valid = false;
-            requiredField[i].style.border = "1px solid red";
-            iconExclamation[i].style.display = "block";
+                requiredField[i].style.border = "1px solid red";
+                iconExclamation[i].style.display = "block";
+                valid = false;
             } 
         }
-        
         return valid;
     },
     // focus lại phần từ đầu tiên
@@ -407,8 +414,8 @@ export default {
     addFunc() {
 
         //   validate dữ liệu
-        if (this.store.PhoneNumber)
-            this.store.PhoneNumber = CommonFunction.phoneNumberToString(this.store.PhoneNumber);
+        // if (this.store.PhoneNumber)
+        //     this.store.PhoneNumber = CommonFunction.phoneNumberToString(this.store.PhoneNumber);
         // Thực thêm thông tin trên database
         
         axios
@@ -436,8 +443,8 @@ export default {
             return response.data;
         })
         .then((data) => {
-            if(data.PhoneNumber)
-                data.PhoneNumber = CommonFunction.phoneNumberToNumber(data.PhoneNumber);
+            // if(data.PhoneNumber)
+            //     data.PhoneNumber = CommonFunction.phoneNumberToNumber(data.PhoneNumber);
             
             this.setData(data);
         });

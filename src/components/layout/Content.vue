@@ -402,21 +402,21 @@ export default {
             }
 
             // //Thay đổi vị trí bắt đầu
-            // this.startPosition = (this.currentPage - 1)*this.storePerPage;
+            this.startPosition = (this.currentPage - 1)*this.storePerPage;
             this.$root.$emit("pageChange", this.startPosition, this.storePerPage)
         },
         //chuyển sang trang tiếp theo
         //CreatedBy: VM Hùng(13/04/2021)
         nextPage() {
             this.currentPage++;
-            this.startPosition = parseInt(this.startPosition) + parseInt(this.storePerPage);
+            // this.startPosition = parseInt(this.startPosition) + parseInt(this.storePerPage);
             this.changePage();
         },
         //Chuyển sang trang trước đó
         //CreatedBy: VM Hùng(13/04/2021)
         prevPage() {
             this.currentPage--;
-            this.startPosition = parseInt(this.startPosition) - parseInt(this.storePerPage);
+            // this.startPosition = parseInt(this.startPosition) - parseInt(this.storePerPage);
             this.changePage();
         },
         //Chuyển về trang đầu tiên
@@ -580,28 +580,10 @@ export default {
         })
         this.loadLocationData();
     },
-    computed: {
-        //Vị trị bắt đầu trong danh sách thay đổi
-        //CreatedBy: VM Hùng(14/04/2021)
-        startPositionChange() {
-            return this.startPosition;
-        },
-        //Số lượng store trên 1 trang thay đổi
-        //CreatedBy: VM Hùng(14/04/2021)
-        storePerPageChange() {
-            return this.storePerPage;
-        },
-        //Thay đổi trang hiện tại
-        //CreatedBy: VM Hùng(14/04/2021)
-
-        // currentPageChange() {
-        //     return this.currentPage;
-        // }
-    },
     watch: {
         //Chỉ số bắt đầu của trang thay đổi
         //CreatedBy: VM Hùng(14/04/2021)
-        startPositionChange() {
+        startPosition() {
             // kiểm tra vị trí page hợp lệ chưa
             if (this.startPosition < 0) this.startPosition = 0;
             if (this.startPosition > this.totalStore) {
@@ -612,43 +594,11 @@ export default {
         },
         //Số lượng bản ghi trên page thay đổi
         //CreatedBy: VM Hùng(14/04/2021)
-        storePerPageChange() {
+        storePerPage() {
             this.currentPage = 1;
             this.startPosition = 0;
             this.$root.$emit("pageChange", this.startPosition, this.storePerPage)
         },
-        // currentPageChange() {
-        //     //Kiểm tra trang hợp lệ
-        //     if (this.currentPage < 1) this.currentPage = 1;
-        //     if (this.currentPage > this.totalPage) this.currentPage = this.totalPage
-        //     //kiểm tra trang đầu tiên
-        //     if (this.currentPage <= 1) {
-        //         //không cho phép lùi lại page
-        //         this.$refs.prevPage.classList.add("disable");
-        //         this.disablePrevPage = true;
-        //         //không cho phép về trang đầu tiên
-        //         this.$refs.firstPage.classList.add("disable");
-        //     } else {
-        //         this.$refs.prevPage.classList.remove("disable")
-        //         this.$refs.firstPage.classList.remove("disable")
-        //         this.disablePrevPage = false;
-        //     }
-        //     // kiểm tra trang cuối cùng
-        //     if (this.currentPage >= this.totalPage) {
-        //         this.$refs.nextPage.classList.add("disable");
-        //         this.disableNextPage = true;
-        //         this.$refs.lastPage.classList.add("disable");
-
-        //     } else {
-        //         this.$refs.nextPage.classList.remove("disable");
-        //         this.$refs.lastPage.classList.remove("disable")
-        //         this.disableNextPage = false;
-        //     }
-
-        //     //Thay đổi vị trí bắt đầu
-        //     this.startPosition = this.currentPage*(this.storePerPage - 1) + 1;
-        //     this.$root.$emit("pageChange", this.startPosition, this.storePerPage)
-        // }
 
     },
     mounted: function() {
