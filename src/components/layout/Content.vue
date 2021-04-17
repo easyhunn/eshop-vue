@@ -5,15 +5,15 @@
         <div class="d-icon icon-plus-white"></div>
         <div class="item-content">Thêm mới</div>
       </button>
-      <button class="item ">
+      <button :disabled="noContent" ref="duplicateStore" class="item " @click="this.duplicateStore"> 
         <div class="d-icon icon-duplicate"></div>
         <div class="item-content">Nhân bản</div>
       </button>
-      <button class="item" @click="this.updateStore">
+      <button :disabled="noContent" ref="updateStore" class="item" @click="this.updateStore">
         <div class="d-icon icon-edit"></div>
         <div class="item-content">Sửa</div>
       </button>
-      <button class="item " @click="this.toggleAlertDelete">
+      <button :disabled="noContent" ref="deleteStore" class="item " @click="this.toggleAlertDelete">
         <div class="d-icon icon-delete"></div>
         <div class="item-content">Xoá</div>
       </button>
@@ -72,7 +72,7 @@
           </select>
         </div>
         <dir class="pagging-right">
-          Hiều thị {{ startPosition + 1 }} -
+          Hiển thị {{startPosition + availableStore > 0 ? startPosition + 1 : 0 }} -
           {{ startPosition + availableStore }} Trên {{ totalStore }} kết quả
         </dir>
       </div>
@@ -149,8 +149,17 @@
 }
 .disable {
   opacity: 0.5;
-  cursor: default;
+  cursor: context-menu !important;
 }
+  .disable:hover {
+    background-color: transparent !important;
+  }
+  .disable .d-icon {
+    cursor: context-menu !important;
+  }
+  .disable .item-content {
+    cursor: context-menu !important;
+  }  
 .content-header {
   display: flex;
   background-color: #2b3173;
@@ -361,8 +370,8 @@
 <script>
 import Table from "../base/Table.vue";
 import Dialog from "../base/Dialog.vue";
-import ADDRESS from "../js/Const.js";
-import { location } from "../store/Location.js";
+import ADDRESS from "../../assets/js/Const.js";
+import { location } from "../../assets/store/Location.js";
 import axios from "axios";
 
 export default {
@@ -383,6 +392,7 @@ export default {
       totalPage: "",
       disablePrevPage: true,
       disableNextPage: false,
+      noContent: false
     };
   },
   components: {
@@ -509,11 +519,19 @@ export default {
           console.log(e);
         });
     },
+    // Nhân bản thông tin cửa hàng
+    //CreatedBy: VM Hùng(17/04/2021)
+    duplicateStore () {
+      this.toggleDialog();
+      this.$refs.dialog.submitType = "duplicate";
+      this.$refs.dialog.showForm();
+      this.$refs.dialog.setData({});
+    },
     //Thêm mới 1 cửa hàng
     //CreatedBy: VM Hùng(13/04/2021)
     addStore() {
       this.toggleDialog();
-      this.$refs.dialog.submitType = "Insert";
+      this.$refs.dialog.submitType = "insert";
       this.$refs.dialog.showForm();
       this.$refs.dialog.setData({});
     },
@@ -521,7 +539,7 @@ export default {
     //CreatedBy: VM Hùng(13/04/2021)
     updateStore() {
       this.toggleDialog();
-      this.$refs.dialog.submitType = "Update";
+      this.$refs.dialog.submitType = "update";
       this.$refs.dialog.showForm();
     },
     // tải lại dữ liệu bảng
@@ -530,6 +548,7 @@ export default {
       this.showPreload();
       this.disabledReload = true;
       this.$refs.table.reLoadData();
+      this.totalStore = this.getTotalStore();
       this.disabledReload = false;
     },
     async loadLocationData() {
@@ -624,6 +643,22 @@ export default {
       this.startPosition = 0;
       this.$root.$emit("pageChange", this.startPosition, this.storePerPage);
     },
+    //Kiểm tra có bản ghi nào hiển thị không
+    //CreatedBy: VM Hùng(14/04/2021)
+    availableStore() {
+      if (this.availableStore == "") {
+        this.$refs.updateStore.classList.add("disable");
+        this.$refs.duplicateStore.classList.add("disable");
+        this.$refs.deleteStore.classList.add("disable");
+        this.noContent = true;
+      } else {
+        this.$refs.updateStore.classList.remove("disable");
+        this.$refs.duplicateStore.classList.remove("disable");
+        this.$refs.deleteStore.classList.remove("disable");
+        this.noContent = false;
+
+      }
+    }
   },
   mounted: function() {
     this.$refs.prevPage.classList.add("disable");

@@ -7,14 +7,15 @@
 </template>
 
 <script>
-import "./components/css/icon.css";
-import "./components/css/table.css";
-import "./components/css/button.css";
-import "./components/css/common.css";
-import "./components/css/font.css";
-import "./components/css/input.css";
-import "./components/css/main.css";
-import "./components/css/footer.css";
+
+import "./assets/css/icon.css";
+import "./assets/css/table.css";
+import "./assets/css/button.css";
+import "./assets/css/common.css";
+import "./assets/css/font.css";
+import "./assets/css/input.css";
+import "./assets/css/main.css";
+import "./assets/css/footer.css";
 
 import Menu from "../src/components/layout/Menu.vue";
 import Header from "../src/components/layout/Header.vue";

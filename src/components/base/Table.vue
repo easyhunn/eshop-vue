@@ -159,10 +159,10 @@
 <script>
 import axios from "axios";
 
-import {store} from "../store/Store.js";
+import {store} from "../../assets/store/Store.js";
 // import {location} from "../store/Location.js";
-import ADDRESS from "../js/Const.js" ;
-import Entity from "../js/Entity.js";
+import ADDRESS from "../../assets/js/Const.js" ;
+import Entity from "../../assets/js/Entity.js";
 
 export default {
   

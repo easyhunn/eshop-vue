@@ -1,7 +1,7 @@
 <template>
     <div class="dialog">
         <div class="dialog-background"></div>
-        <form class="dialog-container" @submit="submitFunc" >
+        <form class="dialog-container" @submit="saveFunc" >
             <div class="dialog-header">
                 <div class="left-header">
                     <div class="header-title">
@@ -17,7 +17,12 @@
                     <label >
                         Mã cửa hàng <span class="text-red">*</span>
                     </label>
-                    <input v-model="store.StoreCode" ref="storeCode" id="storeCode" type="text" class="d-input required">
+                    <input v-model="store.StoreCode"
+                            @keyup="checkAvailableStoreCode" 
+                            ref="storeCode" 
+                            id="storeCode" 
+                            type="text" 
+                            class="d-input required">
                     <div  ref="storeCodeError" class="d-icon icon-exclamation"></div>
                     <span class="input-required">
                         {{storeCodeError}}
@@ -95,7 +100,7 @@
             </div>
             <div class="dialog-footer">
                 <div class="dialog-footer-left">
-                    <button class="button-default btn-3" >
+                    <button type="button" class="button-default btn-3" >
                         <div class="d-icon icon-help" style="background-size: contain;"></div>
                         <div class="d-text">
                             Trợ giúp
@@ -107,7 +112,7 @@
                         <div class="d-icon icon-save"></div>
                         <div class="d-text">Lưu</div>
                     </button>
-                    <button class="button-default btn-2">
+                    <button class="button-default btn-2" @click="saveAndAdd">
                         <div class="d-icon icon-plus"></div>
                         <div class="d-text">Lưu và thêm mới</div>
                     </button>
@@ -274,9 +279,9 @@
 <script>
 import axios from "axios";
 
-import ADDRESS from "../js/Const.js";
-import Entity from "../js/Entity";
-import {location} from "../store/Location.js";
+import ADDRESS from "../../assets/js/Const.js";
+import Entity from "../../assets/js/Entity";
+import {location} from "../../assets/store/Location.js";
 // import CommonFunction from "../js/Common.js";
 
 export default {
@@ -379,14 +384,14 @@ export default {
     //Created by: VM Hùng (13/04/2021)
 
     showForm() {
-        if (this.submitType == "Update") {
-            this.title = "Sửa thông tin cửa hàng";
+        if (this.submitType == "update") {
+            this.title = "Sửa cửa hàng";
         } else {
             this.title = "Thêm mới thông tin cửa hàng";
         }
         this.storeCodeSelected = null;
         this.storeCodeError = "Trường không được phép để trống";
-        if (this.submitType == "Update") {
+        if (this.submitType == "update" || this.submitType == "duplicate") {
             this.loadStoreData();
         } else{
             this.setData(Entity.STORE);
@@ -396,9 +401,10 @@ export default {
         
     },
     //cập nhật thông tin cửa hàng
+    //<param>cancel: có hủy bỏ hay k </param>
     //Created by: VM Hùng (13/04/2021)
-
-    updateFunc () {
+    //Modified by: VM Hùng (17/04/2021)
+    updateFunc (cancel) {
 
         // Sửa thông tin khách hàng vào store
 
@@ -406,7 +412,7 @@ export default {
             .put(ADDRESS.STORE_ADDRESS + this.rowSelected, this.store)
             .then(() => {
                 this.$root.$emit("success", "Sửa thành công");
-                this.cancelFunc();
+                if (cancel) this.cancelFunc();
             }).then (() => {
                 //thông báo thêm thành công về table
                 this.$root.$emit("dialogSubmit", 1);
@@ -418,8 +424,8 @@ export default {
     },
     //Thêm mới 1 cửa hàng
     //Created by: VM Hùng (13/04/2021)
-
-    addFunc() {
+    //Modified by: VM Hùng (17/04/2021)
+    addFunc(cancel) {
 
         //   validate dữ liệu
         // if (this.store.PhoneNumber)
@@ -430,7 +436,8 @@ export default {
             .post(ADDRESS.STORE_ADDRESS, this.store)
             .then(() => {              
                 this.$root.$emit("success", "thêm thành công");
-                this.cancelFunc();
+                if (cancel) this.cancelFunc();
+
             }).then (() => {
                 //thông báo thêm thành công về table
                 this.$root.$emit("dialogSubmit", 1);
@@ -455,13 +462,13 @@ export default {
             //     data.PhoneNumber = CommonFunction.phoneNumberToNumber(data.PhoneNumber);
             
             this.setData(data);
-            this.storeCodeSelected = data.StoreCode;
+            
+            if (this.submitType == "update") this.storeCodeSelected = data.StoreCode;
         });
     },
-    // Lấy dữ liệu cửa hàng theo mã cửa hàng
-    // kiểm tra trùng code
+    // kiểm tra mã cửa hàng đã tồn tại hay chưa
     // Created by: VM Hùng (16/04/2021)
-    loadStoreByStoreCode () {
+    checkAvailableStoreCode () {
         if (this.store.StoreCode != this.storeCodeSelected)
         axios
             .get(ADDRESS.STORE_ADDRESS + "StoreCode/" +  this.store.StoreCode)
@@ -472,6 +479,10 @@ export default {
                         this.storeCodeError = "Mã Khách hàng đã tồn tại";
                         this.$refs.storeCodeError.style.display = "block";
                     }
+                } else {
+                    this.$refs.storeCodeError.style.display = "none";
+                    this.$refs.storeCode.style.border = "1px solid #2b3173";
+
                 }
             })
         // console.log(this.blankStore)
@@ -479,16 +490,32 @@ export default {
     setData (data) {
         Object.assign(this.store, data);
     },
-    submitFunc(e) {
+    //Lưu và thêm mới
+    //Created By: VM Hùng (17/04/2021)
+    saveAndAdd (e) {
+        e.preventDefault();
+         var valid = this.checkValidate();
+        if (valid) {
+            // Xác định kiểu sử dụng modal
+            if (this.submitType == "update") {
+            this.updateFunc();
+            } else {
+            this.addFunc();
+            }
+        }
+    },
+    //Lưu thông tin trên form
+    //Created By: VM Hùng (17/04/2021)
+    saveFunc(e) {
       // kiểm tra dữ liệu hợp lệ
       e.preventDefault();
       var valid = this.checkValidate();
       if (valid) {
         // Xác định kiểu sử dụng modal
-        if (this.submitType == "Update") {
-          this.updateFunc();
+        if (this.submitType == "update") {
+          this.updateFunc(true);
         } else {
-          this.addFunc();
+          this.addFunc(true);
         }
         
       }
@@ -504,7 +531,8 @@ export default {
       (event) => {
         event.target.style.border = "1px solid #2b3173";
         event.target.style.outline = "none";
-        if (event.target.classList.contains("require")) {
+        if (event.target.classList.contains("required")) {
+
             event.target.nextSibling.style.display = "none";
         }
         // var iconExclamation = document.getElementsByClassName("icon-exclamation");
@@ -523,10 +551,10 @@ export default {
         }
         else {
             if (event.target.id == "storeCode") {
-                this.loadStoreByStoreCode();
+                this.checkAvailableStoreCode();
             }
             event.target.style.border = "1px solid #e1e1e1";
-            if (event.target.classList.contains("require")) {
+            if (event.target.classList.contains("required")) {
                 event.target.nextSibling.style.display = "none";
             }
         }

@@ -19,9 +19,11 @@
           --misard
         </option>
       </select>
-      <div class="d-icon avatar-default"></div>
-      <div class="account-name">Vũ Mạnh Hùng</div>
-      <div class="d-icon icon-arrow-down sm-icon"></div>
+      <div class="account-area">
+        <div class="d-icon avatar-default"></div>
+        <div class="account-name">Vũ Mạnh Hùng</div>
+        <div class="d-icon icon-arrow-down sm-icon"></div>
+      </div>
       <a class="d-icon icon-support"></a>
       <div style="height: 52px; width: auto; border-right: 1px solid #e1e1e1">
         <a class="d-icon icon-notify sm-icon"></a>
@@ -38,6 +40,11 @@
   background-repeat: no-repeat;
   background-size: contain;
   display: block;
+  cursor: pointer;
+}
+.account-area {
+  display: flex;
+  align-items: center;
 }
 .sm-icon {
   margin: 17px 17px;
@@ -77,7 +84,8 @@
 .header .account-name {
   margin-left: 16px;
   font-weight: bold;
-   white-space: nowrap;
+  white-space: nowrap;
+  cursor: pointer;
 }
 .header-right .avatar-default {
   margin-left: 16px;
