@@ -6,7 +6,7 @@ const STORE = {
     StoreTaxCode: "",
     CountryId: null,
     ProvinceId: null,
-    DIstrictId: null,
+    DistrictId: null,
     WardId: null,
     Street: "",
     Status: 1

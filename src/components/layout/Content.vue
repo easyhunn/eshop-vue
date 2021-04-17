@@ -13,7 +13,7 @@
         <div class="d-icon icon-edit"></div>
         <div class="item-content">Sửa</div>
       </button>
-      <button :disabled="noContent" ref="deleteStore" class="item " @click="this.toggleAlertDelete">
+      <button :disabled="noContent" ref="deleteStore" class="item" @click="this.toggleAlertDelete">
         <div class="d-icon icon-delete"></div>
         <div class="item-content">Xoá</div>
       </button>
@@ -124,6 +124,7 @@
       </div>
     </div>
     <!-- end region pre load screen -->
+    <Alert v-if="alertSuccess" :notify="notify"/>
   </div>
 </template>
 <style>
@@ -373,6 +374,7 @@ import Dialog from "../base/Dialog.vue";
 import ADDRESS from "../../assets/js/Const.js";
 import { location } from "../../assets/store/Location.js";
 import axios from "axios";
+import Alert from "../base/Alert.vue";
 
 export default {
   name: "Content",
@@ -392,14 +394,19 @@ export default {
       totalPage: "",
       disablePrevPage: true,
       disableNextPage: false,
-      noContent: false
+      noContent: false,
+      alertSuccess: false,
+      notify: ""
     };
   },
   components: {
     Table,
     Dialog,
+    Alert
   },
   methods: {
+    
+    //Số hàng hiển thị trên màn hình thay đổi
     availableRowChange(data) {
       this.availableStore = data;
     },
@@ -513,7 +520,15 @@ export default {
         .then((res) => res)
         .then(() => {
           this.$refs.table.reLoadData();
+          //hiện thông báo
+          this.notify = "xóa thành công!";
           this.hidePreload();
+          
+          this.alertSuccess = true;
+          setTimeout(() => {
+            this.alertSuccess = false;
+          }, 2000);
+          
         })
         .catch((e) => {
           console.log(e);
@@ -661,10 +676,21 @@ export default {
     }
   },
   mounted: function() {
+    //nút xem trang trước bị ẩn ngay khi bắt đầu
     this.$refs.prevPage.classList.add("disable");
     this.$refs.firstPage.classList.add("disable");
+    
+    //Nhận được thông báo thành công từ dialog
+    this.$root.$on("success", (notify) => {
+      this.notify = notify;
+      this.alertSuccess = true;
+      setTimeout(() => {
+        this.alertSuccess = !this.alertSuccess;
+      }, 2000);
+    })
   },
   updated: function() {
+    //Tính lại tổng số trang mỗi lần update
     this.totalPage =
       this.totalStore % this.storePerPage == 0
         ? parseInt(this.totalStore / this.storePerPage)

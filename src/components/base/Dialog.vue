@@ -449,7 +449,7 @@ export default {
 
       
     },
-    //Tải dữ liệu vào form khi update
+    //Tải dữ liệu cửa hàng được chọn vào form khi update
     //Created By: VM Hùng (16/04/2021)
     async loadStoreData() {
       await axios
@@ -572,27 +572,27 @@ export default {
     });
   },
   computed: {
-      getCountry () {
+      getCountryId () {
           return this.store.CountryId;
       },
-      getProvince () {
+      getProvinceId () {
           return this.store.ProvinceId;
       },
-      getDistrict () {
+      getDistrictId () {
           return this.store.DistrictId;
       }
   },
   watch: {
-      getCountry () {
+      getCountryId () {
           this.provinces = location.getters.provinceWithCountry(this.store.CountryId);
           this.districts = [];
           this.wards = [];
       },
-      getProvince () {
+      getProvinceId () {
           this.districts = location.getters.districtWithProvince(this.store.ProvinceId);
           this.wards = [];
       },
-      getDistrict () {
+      getDistrictId () {
           this.wards = location.getters.wardWithDistrict(this.store.DistrictId);
       }
   }
