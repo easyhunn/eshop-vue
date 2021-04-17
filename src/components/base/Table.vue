@@ -71,13 +71,12 @@
         </tbody>
       </table>
     </div>
-    
   </div>
 </template>
 <style scoped>
 
 .h-table {
-  width: 100%;
+  width: calc(100% + 1px);
   height: 100%;
   overflow-x: auto;
   overflow-y: hidden;
@@ -137,6 +136,7 @@
   height: 33px;
 }
 .h-table-body {
+  margin-left: 1px;
   background-color: white;
   width: calc(100vw - 168px);
   /* width: 1194px; */

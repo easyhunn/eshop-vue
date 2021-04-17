@@ -22,6 +22,7 @@
                             ref="storeCode" 
                             id="storeCode" 
                             type="text" 
+                            maxlength="20"
                             class="d-input required">
                     <div  ref="storeCodeError" class="d-icon icon-exclamation"></div>
                     <span class="input-required">
@@ -32,7 +33,10 @@
                     <label >
                         Tên cửa hàng <span class="text-red">*</span>
                     </label>
-                    <input v-model="store.StoreName" type="text" class="d-input required">
+                    <input v-model="store.StoreName" 
+                            type="text" 
+                            maxlength="255"
+                            class="d-input required">
                     <div class="d-icon icon-exclamation"></div>
                     <span class="input-required">
                         Trường không được phép để trống
@@ -44,18 +48,20 @@
                     </label>
                     <textarea id="address" v-model="store.Address" name="" cols="100" rows="3" class="d-text-area required"></textarea>
                     <div class="d-icon icon-exclamation"></div>
-                    <span class="input-required" style="top: 70%;">
+                    <span class="input-required"
+                            maxlength="255"
+                            style="top: 70%;">
                         Trường không được phép để trống
                     </span>
                 </div>
                 <div class="dialog-row">
                     <div class="dialog-sub-row">
                         <label for="">Số điện thoại</label>
-                        <input v-model="store.PhoneNumber" type="text" class="d-input">
+                        <input v-model="store.PhoneNumber" maxlength="50" type="text" class="d-input">
                     </div>
                     <div class="dialog-sub-row">
                         <label for="" class="left-label">Mã số thuế</label>
-                        <input v-model="store.StoreTaxCode" type="text" class="d-input">
+                        <input maxlength="20" v-model="store.StoreTaxCode" type="text" class="d-input">
                     </div>
                 </div>
                 
@@ -94,7 +100,7 @@
                     </div>
                     <div class="dialog-sub-row">
                         <label for="" class="left-label">Đường phố</label>
-                        <input v-model="store.Street" type="text" class="d-input">
+                        <input maxlength="255" v-model="store.Street" type="text" class="d-input">
                     </div>
                 </div>
             </div>
