@@ -5,15 +5,30 @@
         <div class="d-icon icon-plus-white"></div>
         <div class="item-content">Thêm mới</div>
       </button>
-      <button :disabled="noContent" ref="duplicateStore" class="item " @click="this.duplicateStore"> 
+      <button
+        :disabled="noContent"
+        ref="duplicateStore"
+        class="item "
+        @click="this.duplicateStore"
+      >
         <div class="d-icon icon-duplicate"></div>
         <div class="item-content">Nhân bản</div>
       </button>
-      <button :disabled="noContent" ref="updateStore" class="item" @click="this.updateStore">
+      <button
+        :disabled="noContent"
+        ref="updateStore"
+        class="item"
+        @click="this.updateStore"
+      >
         <div class="d-icon icon-edit"></div>
         <div class="item-content">Sửa</div>
       </button>
-      <button :disabled="noContent" ref="deleteStore" class="item" @click="this.toggleAlertDelete">
+      <button
+        :disabled="noContent"
+        ref="deleteStore"
+        class="item"
+        @click="this.toggleAlertDelete"
+      >
         <div class="d-icon icon-delete"></div>
         <div class="item-content">Xoá</div>
       </button>
@@ -72,7 +87,8 @@
           </select>
         </div>
         <dir class="pagging-right">
-          Hiển thị {{startPosition + availableStore > 0 ? startPosition + 1 : 0 }} -
+          Hiển thị
+          {{ startPosition + availableStore > 0 ? startPosition + 1 : 0 }} -
           {{ startPosition + availableStore }} Trên {{ totalStore }} kết quả
         </dir>
       </div>
@@ -124,7 +140,13 @@
       </div>
     </div>
     <!-- end region pre load screen -->
-    <Alert v-if="alertSuccess" :notify="notify"/>
+    <!-- Thông báo thành công -->
+    <Alert v-if="alertSuccess" :notify="notify" />
+    <!-- thông báo lỗi mặc định -->
+    <AlertErrorDefault
+      v-if="showAlertErrorDefault"
+      :closeAlert="closeAlertErrorDefault"
+    />
   </div>
 </template>
 <style>
@@ -152,15 +174,15 @@
   opacity: 0.5;
   cursor: context-menu !important;
 }
-  .disable:hover {
-    background-color: transparent !important;
-  }
-  .disable .d-icon {
-    cursor: context-menu !important;
-  }
-  .disable .item-content {
-    cursor: context-menu !important;
-  }  
+.disable:hover {
+  background-color: transparent !important;
+}
+.disable .d-icon {
+  cursor: context-menu !important;
+}
+.disable .item-content {
+  cursor: context-menu !important;
+}
 .content-header {
   display: flex;
   background-color: #2b3173;
@@ -375,7 +397,7 @@ import Const from "../../assets/js/Const.js";
 import { location } from "../../assets/store/Location.js";
 import axios from "axios";
 import Alert from "../base/Alert.vue";
-
+import AlertErrorDefault from "../base/AlertErrorDefault.vue";
 export default {
   name: "Content",
   data: function() {
@@ -396,16 +418,27 @@ export default {
       disableNextPage: false,
       noContent: false,
       alertSuccess: false,
-      notify: ""
+      notify: "",
+      showAlertErrorDefault: false,
     };
   },
   components: {
     Table,
     Dialog,
-    Alert
+    Alert,
+    AlertErrorDefault,
   },
   methods: {
-    
+    //Đóng thông báo lỗi mặc định
+    // Created By: VM Hùng (19/04/2021)
+    closeAlertErrorDefault() {
+      this.showAlertErrorDefault = false;
+    },
+    //hiển thị thông báo lỗi mặc định
+    // Created By: VM Hùng (19/04/2021)
+    displayAlertErrorDefault() {
+      this.showAlertErrorDefault = true;
+    },
     //Số hàng hiển thị trên màn hình thay đổi
     availableRowChange(data) {
       this.availableStore = data;
@@ -501,8 +534,8 @@ export default {
     },
     // ẨN dialog
     //CreatedBy: VM Hùng(13/04/2021)
-    hideDialog () {
-        this.showDialog = false;
+    hideDialog() {
+      this.showDialog = false;
     },
     //Bật thông báo xóa
     //CreatedBy: VM Hùng(13/04/2021)
@@ -523,20 +556,19 @@ export default {
           //hiện thông báo
           this.notify = Const.MESSAGE.DELETE_SUCCESS;
           this.hidePreload();
-          
+
           this.alertSuccess = true;
           setTimeout(() => {
             this.alertSuccess = false;
           }, 2000);
-          
         })
-        .catch((e) => {
-          console.log(e);
+        .catch(() => {
+          this.displayAlertErrorDefault();
         });
     },
     // Nhân bản thông tin cửa hàng
     //CreatedBy: VM Hùng(17/04/2021)
-    duplicateStore () {
+    duplicateStore() {
       this.toggleDialog();
       this.$refs.dialog.submitType = Const.SUBMIT_TYPE.DUPLICATE;
       this.$refs.dialog.showForm();
@@ -582,6 +614,7 @@ export default {
         })
         .catch((e) => {
           console.log("error ::" + e);
+          //this.displayAlertErrorDefault();
         });
       await axios
         .get(Const.ADDRESS.PROVINCE)
@@ -596,6 +629,7 @@ export default {
         })
         .catch((e) => {
           console.log("error ::" + e);
+          //this.displayAlertErrorDefault();
         });
       await axios
         .get(Const.ADDRESS.DISTRICT)
@@ -610,6 +644,7 @@ export default {
         })
         .catch((e) => {
           console.log("error ::" + e);
+          //this.displayAlertErrorDefault();
         });
       await axios
         .get(Const.ADDRESS.WARD)
@@ -624,6 +659,7 @@ export default {
         })
         .catch((e) => {
           console.log("error ::" + e);
+          //this.displayAlertErrorDefault();
         });
     },
     //Lấy tổng số lượng bản ghi
@@ -677,15 +713,14 @@ export default {
         this.$refs.duplicateStore.classList.remove("disable");
         this.$refs.deleteStore.classList.remove("disable");
         this.noContent = false;
-
       }
-    }
+    },
   },
   mounted: function() {
     //nút xem trang trước bị ẩn ngay khi bắt đầu
     this.$refs.prevPage.classList.add("disable");
     this.$refs.firstPage.classList.add("disable");
-    
+
     //Nhận được thông báo thành công từ dialog
     this.$root.$on("success", (notify) => {
       this.notify = notify;
@@ -693,7 +728,13 @@ export default {
       setTimeout(() => {
         this.alertSuccess = !this.alertSuccess;
       }, 2000);
-    })
+    });
+
+    //Nhận được thông báo lỗi
+
+    this.$root.$on("errorDefault", () => {
+      this.displayAlertErrorDefault()
+    });
   },
   updated: function() {
     //Tính lại tổng số trang mỗi lần update

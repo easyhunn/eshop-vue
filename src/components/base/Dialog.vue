@@ -314,7 +314,6 @@ export default {
               Status: 1
           },
           countries: {
-
           },
           provinces: {
 
@@ -329,15 +328,15 @@ export default {
           storeNameSelected: "",
           storeCodeSelected: "",
           storeCodeError: Const.DIALOG.NOT_ALLOW_BLANK,
-          blankStore: {}
+          valid: true
       }
   },
   methods : {
+    // Xoá các ô input đã validate
     // chuyển border của tất cả input, select về mặc đinh
     //xóa dấu !
     //Created by: VM Hùng (13/04/2021)
-    removeValidate() {
-      
+    removeValidate() { 
       var form = document.getElementsByTagName("form")[0].elements;
       var iconExclamation = document.getElementsByClassName("icon-exclamation");
       // xoá border
@@ -358,9 +357,8 @@ export default {
     //Created by: VM Hùng (13/04/2021)
 
     checkValidate() {
-        this.blankStore = {}
-        if (!this.noBlankData()) return false;
-        return true;
+        if (!this.noBlankData()) this.valid = false;
+        else this.valid = true
     },
     // Kiểm tra tất cả trường yêu cầu đều có dữ liệu
     //Created By: VM Hùng (16/04/2021)
@@ -380,7 +378,6 @@ export default {
     },
     // focus lại phần từ đầu tiên
     //Created by: VM Hùng (13/04/2021)
-
     reFocus(e) {
       if (e.keyCode == 9) {
         e.preventDefault();
@@ -391,6 +388,7 @@ export default {
     //Created by: VM Hùng (13/04/2021)
 
     showForm() {
+        // Đổi tiêu đề dialog
         if (this.submitType == Const.SUBMIT_TYPE.UPDATE) {
             this.title = Const.DIALOG.TITLE_UPDATE;
         } else {
@@ -398,23 +396,21 @@ export default {
         }
         this.storeCodeSelected = null;
         this.storeCodeError = Const.DIALOG.NOT_ALLOW_BLANK;
+
         if (this.submitType == Const.SUBMIT_TYPE.UPDATE || this.submitType == Const.SUBMIT_TYPE.DUPLICATE) {
-            this.loadStoreData();
+            this.fillFormData();
         } else{
             this.setData(Entity.STORE);
         }        
         this.removeValidate();
         this.$nextTick(() => this.focusFirstElement());
-        
     },
     //cập nhật thông tin cửa hàng
-    //<param>cancel: có hủy bỏ hay k </param>
+    //<param>cancel: có đóng cửa sổ dialog hay không </param>
     //Created by: VM Hùng (13/04/2021)
     //Modified by: VM Hùng (17/04/2021)
-    updateFunc (cancel) {
-
+    updateStore (cancel) {
         // Sửa thông tin khách hàng vào store
-
         axios
             .put(Const.ADDRESS.STORE + this.rowSelected, this.store)
             .then(() => {
@@ -425,52 +421,47 @@ export default {
                 this.$root.$emit("dialogSubmit", 1);
             }) 
             .catch((error) => {
-                this.storeCodeError = error.response.data.userMsg;
-                this.$refs.storeCodeError.style.display = "block";
+                if (typeof error.response != "undefined") {
+                    if (!error.response.data.userMsg) this.$root.$emit("errorDefault", 1);
+                    console.log(error.response.userMsg)
+                } else {
+                    this.$root.$emit("errorDefault", 1);
+                }
             });
     },
     //Thêm mới 1 cửa hàng
     //Created by: VM Hùng (13/04/2021)
     //Modified by: VM Hùng (17/04/2021)
-    addFunc(cancel) {
-
-        //   validate dữ liệu
-        // if (this.store.PhoneNumber)
-        //     this.store.PhoneNumber = CommonFunction.phoneNumberToString(this.store.PhoneNumber);
-        // Thực thêm thông tin trên database
-        
+    addStore(cancel) {
         axios
             .post(Const.ADDRESS.STORE, this.store)
             .then(() => {              
                 this.$root.$emit("success", Const.MESSAGE.ADDD_SUCCESS);
                 if (cancel) this.cancelFunc();
-
             }).then (() => {
                 //thông báo thêm thành công về table
                 this.$root.$emit("dialogSubmit", 1);
             })
             .catch((error) => {
-                this.storeCodeError = error.response.data.userMsg;
-                this.$refs.storeCodeError.style.display = "block";
+                if (typeof error.response != "undefined") {
+                    if (!error.response.data.userMsg) this.$root.$emit("errorDefault", 1);
+                    console.log(error.response.userMsg)
+                } else {
+                    this.$root.$emit("errorDefault", 1);
+                }
             });
-
-      
     },
     //Tải dữ liệu cửa hàng được chọn vào form khi update
     //Created By: VM Hùng (16/04/2021)
-    async loadStoreData() {
+    async fillFormData() {
       await axios
         .get(Const.ADDRESS.STORE + this.rowSelected)
         .then((response) => {
             return response.data;
         })
         .then((data) => {
-            // if(data.PhoneNumber)
-            //     data.PhoneNumber = CommonFunction.phoneNumberToNumber(data.PhoneNumber);
-            
-            this.setData(data);
-            
-            if (this.submitType == "update") this.storeCodeSelected = data.StoreCode;
+            this.setData(data);       
+            if (this.submitType == Const.SUBMIT_TYPE.UPDATE) this.storeCodeSelected = data.StoreCode;
         });
     },
     // kiểm tra mã cửa hàng đã tồn tại hay chưa
@@ -478,6 +469,7 @@ export default {
     checkAvailableStoreCode () {
         //Kiểm tra mã khách hàng hợp lệ
         if (this.store.StoreCode.length > 20) {
+            // Nếu độ dài mã khách hàng vượt quá giới hạn cho phép
             this.$refs.storeCode.style.border = "1px solid red";
             this.$refs.storeCodeError.style.display="block";
             this.storeCodeError = Const.DIALOG.STORECODE_EXCEED;
@@ -489,6 +481,7 @@ export default {
                     .then((response) => {
                         if (response.data.StoreCode) {
                             if (response.data.StoreCode) {
+                                //Nếu mã khách hàng đã tồn tại
                                 this.$refs.storeCode.style.border = "1px solid red";
                                 this.storeCodeError = Const.MESSAGE.DUPLICATE_STORECODE;
                                 this.$refs.storeCodeError.style.display = "block";
@@ -496,7 +489,6 @@ export default {
                         } else {
                             this.$refs.storeCodeError.style.display = "none";
                             this.$refs.storeCode.style.border = "1px solid #2b3173";
-
                         }
                     }).catch ((e) => {
                         this.$refs.storeCode.style.border = "1px solid red";
@@ -504,7 +496,6 @@ export default {
                         this.$refs.storeCodeError.style.display = "block";
                     }) 
         }
-        // console.log(this.blankStore)
     },
     setData (data) {
         Object.assign(this.store, data);
@@ -517,9 +508,9 @@ export default {
         if (valid) {
             // Xác định kiểu sử dụng modal
             if (this.submitType == Const.SUBMIT_TYPE.UPDATE) {
-            this.updateFunc();
+            this.updateStore();
             } else {
-            this.addFunc();
+            this.addStore();
             }
         }
     },
@@ -528,21 +519,21 @@ export default {
     saveFunc(e) {
       // kiểm tra dữ liệu hợp lệ
       e.preventDefault();
-      var valid = this.checkValidate();
-      if (valid) {
+      this.checkValidate();
+      if (this.valid) {
         // Xác định kiểu sử dụng modal
         if (this.submitType == Const.SUBMIT_TYPE.UPDATE) {
-          this.updateFunc(true);
+          this.updateStore(true);
         } else {
-          this.addFunc(true);
+          this.addStore(true);
         }
-        
       }
     },
 
     
   },
   mounted() {
+      this.valid = true;
     var form = document.getElementsByTagName("form")[0];
     //Thêm sự kiện khi focus vào ô
     form.addEventListener(
@@ -569,7 +560,6 @@ export default {
           event.target.nextSibling.style.display = "block";
         }
         else {
-            
             event.target.style.border = "1px solid #e1e1e1";
             if (event.target.classList.contains("required")) {
                 event.target.nextSibling.style.display = "none";

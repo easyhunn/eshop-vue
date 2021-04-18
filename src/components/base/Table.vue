@@ -263,6 +263,8 @@ export default {
           console.log("error ::" + e);
         });
     },
+    // Lấy dữ liệu cửa hàng theo vị trí bắt đầu và số lượng
+    // Created By: VM Hùng (16/04/2021)
     async loadDataByIndexOffset (start, offset) {
       if (!start) start = 0;
       if (!offset) offset = 15;
