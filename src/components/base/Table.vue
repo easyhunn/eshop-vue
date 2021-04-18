@@ -161,7 +161,7 @@ import axios from "axios";
 
 import {store} from "../../assets/store/Store.js";
 // import {location} from "../store/Location.js";
-import ADDRESS from "../../assets/js/Const.js" ;
+import Const from "../../assets/js/Const.js" ;
 import Entity from "../../assets/js/Entity.js";
 
 export default {
@@ -212,7 +212,7 @@ export default {
     //Created By: VM Hùng (13/04/2021)
     async loadData() {
       await axios
-        .get(ADDRESS.STORE_ADDRESS)
+        .get(Const.ADDRESS.STORE)
         .then((response) => {
           return response.data;
         })
@@ -236,7 +236,7 @@ export default {
     async filterData() {
       if (this.status == "") this.status = 3; 
        await axios
-        .get(ADDRESS.STORE_ADDRESS + "Filter?storeCode=" + this.filterCategories.storeCode
+        .get(Const.ADDRESS.STORE + "Filter?storeCode=" + this.filterCategories.storeCode
                                           +"&storeName=" + this.filterCategories.storeName
                                           +"&address="   + this.filterCategories.address
                                           +"&phoneNumber="+ this.filterCategories.phoneNumber 
@@ -267,7 +267,7 @@ export default {
       if (!start) start = 0;
       if (!offset) offset = 15;
       await axios
-        .get(ADDRESS.STORE_ADDRESS + "page?positionStart=" + start + "&offSet=" + offset)
+        .get(Const.ADDRESS.STORE + "page?positionStart=" + start + "&offSet=" + offset)
         .then((response) => {
           return response.data;
         })

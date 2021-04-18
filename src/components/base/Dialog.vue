@@ -57,11 +57,12 @@
                 <div class="dialog-row">
                     <div class="dialog-sub-row">
                         <label for="">Số điện thoại</label>
-                        <input v-model="store.PhoneNumber" maxlength="50" type="text" class="d-input">
+                        <input ref="phoneNumber" v-model="store.PhoneNumber" maxlength="50" type="text" class="d-input">
                     </div>
                     <div class="dialog-sub-row">
                         <label for="" class="left-label">Mã số thuế</label>
-                        <input maxlength="20" v-model="store.StoreTaxCode" type="text" class="d-input">
+                        <input ref="storeTaxCode
+                        " maxlength="20" v-model="store.StoreTaxCode" type="text" class="d-input">
                     </div>
                 </div>
                 
@@ -285,7 +286,7 @@
 <script>
 import axios from "axios";
 
-import ADDRESS from "../../assets/js/Const.js";
+import Const from "../../assets/js/Const.js";
 import Entity from "../../assets/js/Entity";
 import {location} from "../../assets/store/Location.js";
 // import CommonFunction from "../js/Common.js";
@@ -297,7 +298,7 @@ export default {
   },
   data: function() {
       return {
-          title: "Thêm mới cửa hàng",
+          title: Const.DIALOG.TITLE_ADD,
           submitType: "",
           store: {
               StoreCode: "",
@@ -327,7 +328,7 @@ export default {
           rowSelected: null,
           storeNameSelected: "",
           storeCodeSelected: "",
-          storeCodeError: "Trường không được phép để trống",
+          storeCodeError: Const.DIALOG.NOT_ALLOW_BLANK,
           blankStore: {}
       }
   },
@@ -390,14 +391,14 @@ export default {
     //Created by: VM Hùng (13/04/2021)
 
     showForm() {
-        if (this.submitType == "update") {
-            this.title = "Sửa cửa hàng";
+        if (this.submitType == Const.SUBMIT_TYPE.UPDATE) {
+            this.title = Const.DIALOG.TITLE_UPDATE;
         } else {
-            this.title = "Thêm mới thông tin cửa hàng";
+            this.title = Const.DIALOG.TITLE_ADD;
         }
         this.storeCodeSelected = null;
-        this.storeCodeError = "Trường không được phép để trống";
-        if (this.submitType == "update" || this.submitType == "duplicate") {
+        this.storeCodeError = Const.DIALOG.NOT_ALLOW_BLANK;
+        if (this.submitType == Const.SUBMIT_TYPE.UPDATE || this.submitType == Const.SUBMIT_TYPE.DUPLICATE) {
             this.loadStoreData();
         } else{
             this.setData(Entity.STORE);
@@ -415,9 +416,9 @@ export default {
         // Sửa thông tin khách hàng vào store
 
         axios
-            .put(ADDRESS.STORE_ADDRESS + this.rowSelected, this.store)
+            .put(Const.ADDRESS.STORE + this.rowSelected, this.store)
             .then(() => {
-                this.$root.$emit("success", "Sửa thành công");
+                this.$root.$emit("success", Const.MESSAGE.UPDATE_SUCCESS);
                 if (cancel) this.cancelFunc();
             }).then (() => {
                 //thông báo thêm thành công về table
@@ -439,9 +440,9 @@ export default {
         // Thực thêm thông tin trên database
         
         axios
-            .post(ADDRESS.STORE_ADDRESS, this.store)
+            .post(Const.ADDRESS.STORE, this.store)
             .then(() => {              
-                this.$root.$emit("success", "thêm thành công");
+                this.$root.$emit("success", Const.MESSAGE.ADDD_SUCCESS);
                 if (cancel) this.cancelFunc();
 
             }).then (() => {
@@ -459,7 +460,7 @@ export default {
     //Created By: VM Hùng (16/04/2021)
     async loadStoreData() {
       await axios
-        .get(ADDRESS.STORE_ADDRESS + this.rowSelected)
+        .get(Const.ADDRESS.STORE + this.rowSelected)
         .then((response) => {
             return response.data;
         })
@@ -475,22 +476,34 @@ export default {
     // kiểm tra mã cửa hàng đã tồn tại hay chưa
     // Created by: VM Hùng (16/04/2021)
     checkAvailableStoreCode () {
-        if (this.store.StoreCode != this.storeCodeSelected)
-        axios
-            .get(ADDRESS.STORE_ADDRESS + "StoreCode/" +  this.store.StoreCode)
-            .then((response) => {
-                if (response.data.StoreCode) {
-                    if (response.data.StoreCode) {
-                        this.$refs.storeCode.style.border = "1px solid red";
-                        this.storeCodeError = "Mã Khách hàng đã tồn tại";
-                        this.$refs.storeCodeError.style.display = "block";
-                    }
-                } else {
-                    this.$refs.storeCodeError.style.display = "none";
-                    this.$refs.storeCode.style.border = "1px solid #2b3173";
+        //Kiểm tra mã khách hàng hợp lệ
+        if (this.store.StoreCode.length > 20) {
+            this.$refs.storeCode.style.border = "1px solid red";
+            this.$refs.storeCodeError.style.display="block";
+            this.storeCodeError = Const.DIALOG.STORECODE_EXCEED;
+        } else {
 
-                }
-            })
+            if (this.store.StoreCode != this.storeCodeSelected)
+                axios
+                    .get(Const.ADDRESS.STORE_BY_STORE_CODE +  this.store.StoreCode)
+                    .then((response) => {
+                        if (response.data.StoreCode) {
+                            if (response.data.StoreCode) {
+                                this.$refs.storeCode.style.border = "1px solid red";
+                                this.storeCodeError = Const.MESSAGE.DUPLICATE_STORECODE;
+                                this.$refs.storeCodeError.style.display = "block";
+                            }
+                        } else {
+                            this.$refs.storeCodeError.style.display = "none";
+                            this.$refs.storeCode.style.border = "1px solid #2b3173";
+
+                        }
+                    }).catch ((e) => {
+                        this.$refs.storeCode.style.border = "1px solid red";
+                        this.storeCodeError = e.response.data.userMsg;
+                        this.$refs.storeCodeError.style.display = "block";
+                    }) 
+        }
         // console.log(this.blankStore)
     },
     setData (data) {
@@ -503,7 +516,7 @@ export default {
          var valid = this.checkValidate();
         if (valid) {
             // Xác định kiểu sử dụng modal
-            if (this.submitType == "update") {
+            if (this.submitType == Const.SUBMIT_TYPE.UPDATE) {
             this.updateFunc();
             } else {
             this.addFunc();
@@ -518,7 +531,7 @@ export default {
       var valid = this.checkValidate();
       if (valid) {
         // Xác định kiểu sử dụng modal
-        if (this.submitType == "update") {
+        if (this.submitType == Const.SUBMIT_TYPE.UPDATE) {
           this.updateFunc(true);
         } else {
           this.addFunc(true);
@@ -556,12 +569,13 @@ export default {
           event.target.nextSibling.style.display = "block";
         }
         else {
-            if (event.target.id == "storeCode") {
-                this.checkAvailableStoreCode();
-            }
+            
             event.target.style.border = "1px solid #e1e1e1";
             if (event.target.classList.contains("required")) {
                 event.target.nextSibling.style.display = "none";
+            }
+            if (event.target.id == "storeCode") {
+                this.checkAvailableStoreCode();
             }
         }
       },
@@ -578,29 +592,42 @@ export default {
     });
   },
   computed: {
-      getCountryId () {
-          return this.store.CountryId;
-      },
-      getProvinceId () {
-          return this.store.ProvinceId;
-      },
-      getDistrictId () {
-          return this.store.DistrictId;
-      }
+        //Quan sát thay đổi id của đất nước
+        //Created By: VM HÙNG (14/04/2021)
+        getCountryId () {
+            return this.store.CountryId;
+        },
+        //Quan sát thay đổi id của đất nước
+        //Created By: VM HÙNG (14/04/2021)
+        getProvinceId () {
+            return this.store.ProvinceId;
+        },
+        //Quan sát thay đổi id của đất nước
+        //Created By: VM HÙNG (14/04/2021)
+        getDistrictId () {
+            return this.store.DistrictId;
+        }
   },
   watch: {
-      getCountryId () {
-          this.provinces = location.getters.provinceWithCountry(this.store.CountryId);
-          this.districts = [];
-          this.wards = [];
-      },
-      getProvinceId () {
-          this.districts = location.getters.districtWithProvince(this.store.ProvinceId);
-          this.wards = [];
-      },
-      getDistrictId () {
-          this.wards = location.getters.wardWithDistrict(this.store.DistrictId);
-      }
+        //thay đổi tất cả id của tỉnh, huyện xã khi id quốc gia thay đổi
+        //Created By: VM HÙNG (14/04/2021)
+
+        getCountryId () {
+            this.provinces = location.getters.provinceWithCountry(this.store.CountryId);
+            this.districts = [];
+            this.wards = [];
+        },
+        //thay đổi tất cả id của tỉnh, huyện xã khi id quốc gia thay đổi
+        //Created By: VM HÙNG (14/04/2021)
+        getProvinceId () {
+            this.districts = location.getters.districtWithProvince(this.store.ProvinceId);
+            this.wards = [];
+        },
+        //thay đổi tất cả id của tỉnh, huyện xã khi id quốc gia thay đổi
+        //Created By: VM HÙNG (14/04/2021)
+        getDistrictId () {
+            this.wards = location.getters.wardWithDistrict(this.store.DistrictId);
+        }
   }
 
 }

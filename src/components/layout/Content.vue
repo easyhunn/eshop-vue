@@ -371,7 +371,7 @@
 <script>
 import Table from "../base/Table.vue";
 import Dialog from "../base/Dialog.vue";
-import ADDRESS from "../../assets/js/Const.js";
+import Const from "../../assets/js/Const.js";
 import { location } from "../../assets/store/Location.js";
 import axios from "axios";
 import Alert from "../base/Alert.vue";
@@ -516,12 +516,12 @@ export default {
       this.toggleAlertDelete();
       this.showPreload();
       axios
-        .delete(ADDRESS.STORE_ADDRESS + this.storeIdSelected)
+        .delete(Const.ADDRESS.STORE + this.storeIdSelected)
         .then((res) => res)
         .then(() => {
           this.$refs.table.reLoadData();
           //hiện thông báo
-          this.notify = "xóa thành công!";
+          this.notify = Const.MESSAGE.DELETE_SUCCESS;
           this.hidePreload();
           
           this.alertSuccess = true;
@@ -538,7 +538,7 @@ export default {
     //CreatedBy: VM Hùng(17/04/2021)
     duplicateStore () {
       this.toggleDialog();
-      this.$refs.dialog.submitType = "duplicate";
+      this.$refs.dialog.submitType = Const.SUBMIT_TYPE.DUPLICATE;
       this.$refs.dialog.showForm();
       this.$refs.dialog.setData({});
     },
@@ -546,7 +546,7 @@ export default {
     //CreatedBy: VM Hùng(13/04/2021)
     addStore() {
       this.toggleDialog();
-      this.$refs.dialog.submitType = "insert";
+      this.$refs.dialog.submitType = Const.SUBMIT_TYPE.INSERT;
       this.$refs.dialog.showForm();
       this.$refs.dialog.setData({});
     },
@@ -554,7 +554,7 @@ export default {
     //CreatedBy: VM Hùng(13/04/2021)
     updateStore() {
       this.toggleDialog();
-      this.$refs.dialog.submitType = "update";
+      this.$refs.dialog.submitType = Const.SUBMIT_TYPE.UPDATE;
       this.$refs.dialog.showForm();
     },
     // tải lại dữ liệu bảng
@@ -566,9 +566,11 @@ export default {
       this.totalStore = this.getTotalStore();
       this.disabledReload = false;
     },
+    // Lấy danh sách tất cả các tỉnh huyện thành phố đất nước
+    //Created By: VM HÙng (15/04/2021)
     async loadLocationData() {
       await axios
-        .get(ADDRESS.COUNTRY_ADDRESS)
+        .get(Const.ADDRESS.COUNTRY)
         .then((response) => {
           return response.data;
         })
@@ -582,7 +584,7 @@ export default {
           console.log("error ::" + e);
         });
       await axios
-        .get(ADDRESS.PROVINCE_ADDRESS)
+        .get(Const.ADDRESS.PROVINCE)
         .then((response) => {
           return response.data;
         })
@@ -596,7 +598,7 @@ export default {
           console.log("error ::" + e);
         });
       await axios
-        .get(ADDRESS.DISTRICT_ADDRESS)
+        .get(Const.ADDRESS.DISTRICT)
         .then((response) => {
           return response.data;
         })
@@ -610,7 +612,7 @@ export default {
           console.log("error ::" + e);
         });
       await axios
-        .get(ADDRESS.WARD_ADDRESS)
+        .get(Const.ADDRESS.WARD)
         .then((response) => {
           return response.data;
         })
@@ -624,8 +626,10 @@ export default {
           console.log("error ::" + e);
         });
     },
+    //Lấy tổng số lượng bản ghi
+    // Created By: VM Hùng (14/04/2021)
     getTotalStore() {
-      axios.get(ADDRESS.STORE_ADDRESS + "StoresQuantity").then((response) => {
+      axios.get(Const.ADDRESS.STORE + "StoresQuantity").then((response) => {
         this.totalStore = response.data;
       });
     },
@@ -633,10 +637,12 @@ export default {
   created: function() {
     this.getTotalStore();
 
+    // Nhận sự kiện khi 1 hàng được chọn
     this.$root.$on("rowSelect", (id, name) => {
       this.storeNameSelected = name;
       this.storeIdSelected = id;
     });
+
     this.loadLocationData();
   },
   watch: {
